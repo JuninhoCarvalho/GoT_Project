@@ -32,5 +32,4 @@ public class CharacterController {
     public ResponseEntity<Character> createACharacter(@RequestBody CharacterDto characterDto){
         return ResponseEntity.created(null).body(gotService.createCharacter(characterDto));
     }
-
 }

@@ -1,7 +1,10 @@
 package br.com.inatel.FranciscoJunior_GotProject.service;
 
 import br.com.inatel.FranciscoJunior_GotProject.adapter.GotAdapter;
-import br.com.inatel.FranciscoJunior_GotProject.exception.*;
+import br.com.inatel.FranciscoJunior_GotProject.exception.CharacterAlreadyDeadException;
+import br.com.inatel.FranciscoJunior_GotProject.exception.ConnectionJDBCFailedException;
+import br.com.inatel.FranciscoJunior_GotProject.exception.ExternalApiConnectionException;
+import br.com.inatel.FranciscoJunior_GotProject.exception.FamilyDoesnExistException;
 import br.com.inatel.FranciscoJunior_GotProject.mapper.GotMapper;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
@@ -19,7 +22,6 @@ import org.springframework.web.reactive.function.client.WebClientException;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Transactional
@@ -94,7 +96,7 @@ public class GotService {
         familyRepository.save(family);
     }
 
-    public void insertFamilys(Set<String> familyNames) {
+    public void insertFamilys(List<String> familyNames) {
         familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
     }
 

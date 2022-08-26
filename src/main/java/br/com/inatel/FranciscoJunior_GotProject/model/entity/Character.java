@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @NoArgsConstructor
@@ -22,9 +23,13 @@ public class Character {
     private Integer id;
     private String firstName;
     private String lastName;
+    @NotBlank
     private String fullName;
+    @NotBlank
     private String title;
     private String family;
+    @NotBlank
     private String image;
+    @NotBlank
     private String imageUrl;
 }
