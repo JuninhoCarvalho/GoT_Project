@@ -1,10 +1,7 @@
 package br.com.inatel.FranciscoJunior_GotProject.service;
 
 import br.com.inatel.FranciscoJunior_GotProject.adapter.GotAdapter;
-import br.com.inatel.FranciscoJunior_GotProject.exception.CharacterAlreadyDeadException;
-import br.com.inatel.FranciscoJunior_GotProject.exception.ConnectionJDBCFailedException;
-import br.com.inatel.FranciscoJunior_GotProject.exception.ExternalApiConnectionException;
-import br.com.inatel.FranciscoJunior_GotProject.exception.FamilyDoesnExistException;
+import br.com.inatel.FranciscoJunior_GotProject.exception.*;
 import br.com.inatel.FranciscoJunior_GotProject.mapper.GotMapper;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
@@ -116,5 +113,15 @@ public class GotService {
 
     private boolean theCharactarAlreadyDead(String name, String family) {
         return deadRepository.findByNameAndFamily(name, family) != null;
+    }
+
+    public Character deleteCharacter(String fullName) {
+        Character character = characterRepository.findByFullName(fullName);
+        if(character != null){
+            characterRepository.deleteByFullName(fullName);
+            return character;
+        }
+
+        throw new CharacterNotFoundException(fullName);
     }
 }

@@ -25,5 +25,7 @@ public class Dead {
     private String name;
     @NotNull
     private String family;
+    @NotNull
+    private String continent;
 
 }

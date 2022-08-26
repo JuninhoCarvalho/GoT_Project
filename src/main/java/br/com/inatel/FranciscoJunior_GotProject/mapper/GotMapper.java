@@ -117,6 +117,7 @@ public class GotMapper {
         Dead dead = Dead.builder()
                 .name(dd.getName())
                 .family(dd.getFamily())
+                .continent(dd.getContinent())
                 .build();
 
         return dead;
@@ -126,6 +127,7 @@ public class GotMapper {
         DeadDto deadDto = DeadDto.builder()
                 .name(dd.getName())
                 .family(dd.getFamily())
+                .continent(dd.getContinent())
                 .build();
 
         return deadDto;

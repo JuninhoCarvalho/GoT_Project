@@ -14,4 +14,5 @@ public class DeadDto {
     private Integer id;
     private String name;
     private String family;
+    private String continent;
 }

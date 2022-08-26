@@ -32,4 +32,9 @@ public class CharacterController {
     public ResponseEntity<Character> createACharacter(@RequestBody CharacterDto characterDto){
         return ResponseEntity.created(null).body(gotService.createCharacter(characterDto));
     }
+
+    @DeleteMapping("/Delete/{fullName}")
+    public ResponseEntity<Character> deleteCharacter(@PathVariable String fullName){
+        return ResponseEntity.ok(gotService.deleteCharacter(fullName));
+    }
 }

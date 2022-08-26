@@ -39,6 +39,15 @@ public class ControllerExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(CharacterNotFoundException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public Error characterNotFoundException(CharacterNotFoundException characterNotFoundException){
+        return Error.builder()
+                .httpStatusCode(HttpStatus.NOT_FOUND)
+                .message(characterNotFoundException.getMessage())
+                .build();
+    }
+
     @ExceptionHandler(ExternalApiConnectionException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public Error externalApiConnectionException(ExternalApiConnectionException externalApiConnectionException){
