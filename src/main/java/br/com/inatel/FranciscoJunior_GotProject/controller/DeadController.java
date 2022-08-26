@@ -1,8 +1,7 @@
 package br.com.inatel.FranciscoJunior_GotProject.controller;
 
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
-import br.com.inatel.FranciscoJunior_GotProject.model.entity.Dead;
-import br.com.inatel.FranciscoJunior_GotProject.model.entity.Family;
+import br.com.inatel.FranciscoJunior_GotProject.model.dto.FamilyDto;
 import br.com.inatel.FranciscoJunior_GotProject.service.GotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,17 +17,17 @@ public class DeadController {
     GotService gotService;
 
     @GetMapping
-    public ResponseEntity<List<Dead>> listAllDeads(){
+    public ResponseEntity<List<DeadDto>> listAllDeads(){
         return ResponseEntity.ok(gotService.findAllDeads());
     }
 
     @GetMapping("/Family")
-    public ResponseEntity<List<Family>> listDeadsPerContinent(){
+    public ResponseEntity<List<FamilyDto>> listDeadsPerContinent(){
         return ResponseEntity.ok(gotService.findDeadsPerFamily());
     }
 
     @PostMapping
-    public ResponseEntity<Dead> includeNewDead(@RequestBody DeadDto deadDto) {
+    public ResponseEntity<DeadDto> includeNewDead(@RequestBody DeadDto deadDto) {
         return ResponseEntity.created(null).body(gotService.includeNewDead(deadDto));
     }
 }

@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CharacterRepository extends JpaRepository<Character, Integer> {
     Character findByFullName(String name);
+
+    void deleteByFullName(String fullName);
 }

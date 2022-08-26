@@ -63,6 +63,7 @@ public class GotMapper {
 
     public static CharacterDto toCharacterDto(Character ch) {
         CharacterDto characterDto = CharacterDto.builder()
+                .id(ch.getId())
                 .firstName(ch.getFirstName())
                 .lastName(ch.getLastName())
                 .fullName(ch.getFullName())
@@ -117,6 +118,7 @@ public class GotMapper {
         Dead dead = Dead.builder()
                 .name(dd.getName())
                 .family(dd.getFamily())
+                .continent(dd.getContinent())
                 .build();
 
         return dead;
@@ -124,8 +126,10 @@ public class GotMapper {
 
     public static DeadDto toDeadDto(Dead dd){
         DeadDto deadDto = DeadDto.builder()
+                .id(dd.getId())
                 .name(dd.getName())
                 .family(dd.getFamily())
+                .continent(dd.getContinent())
                 .build();
 
         return deadDto;

@@ -5,9 +5,9 @@ import br.com.inatel.FranciscoJunior_GotProject.exception.*;
 import br.com.inatel.FranciscoJunior_GotProject.mapper.GotMapper;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
+import br.com.inatel.FranciscoJunior_GotProject.model.dto.FamilyDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Character;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Continent;
-import br.com.inatel.FranciscoJunior_GotProject.model.entity.Dead;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Family;
 import br.com.inatel.FranciscoJunior_GotProject.repository.CharacterRepository;
 import br.com.inatel.FranciscoJunior_GotProject.repository.DeadRepository;
@@ -19,7 +19,6 @@ import org.springframework.web.reactive.function.client.WebClientException;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Transactional
@@ -48,34 +47,37 @@ public class GotService {
         }
     }
 
-    public List<Character> findAllCharacters(){
+    public List<CharacterDto> findAllCharacters(){
         try {
             List<Character> characters = characterRepository.findAll();
 
-            return characters;
+            return GotMapper.toCharacterDtoList(characters);
         }catch(JDBCConnectionException jdbcConnectionException){
             throw new ConnectionJDBCFailedException(jdbcConnectionException);
         }
     }
 
-    public Character findCharacter(String name) {
-        return characterRepository.findByFullName(name);
+    public CharacterDto findCharacter(String name) {
+        return GotMapper.toCharacterDto(characterRepository.findByFullName(name));
     }
     public List<Continent> findAllContinents(){
         return GotMapper.toContinentList(gotAdapter.listContinents());
     }
 
-    public Character createCharacter(CharacterDto characterDto) {
-        return characterRepository.save(GotMapper.toCharacter(characterDto));
+    public CharacterDto createCharacter(CharacterDto characterDto) {
+        return GotMapper.toCharacterDto(characterRepository.save(GotMapper.toCharacter(characterDto)));
     }
 
-    public List<Dead> findAllDeads() {
-        return deadRepository.findAll();
+    public List<DeadDto> findAllDeads() {
+        return GotMapper.toDeadDtoList(deadRepository.findAll());
     }
 
-    public Dead includeNewDead(DeadDto deadDto) {
+    public DeadDto includeNewDead(DeadDto deadDto) {
 
-        if(!isValidFamily(deadDto.getFamily())) {
+        if(!isValidContinent(deadDto.getContinent())){
+            throw new ContinentNotFoundException(deadDto.getContinent());
+        }
+        else if(!isValidFamily(deadDto.getFamily())) {
             throw new FamilyDoesnExistException(deadDto.getFamily());
         }
         else if(theCharactarAlreadyDead(deadDto.getName(), deadDto.getFamily())){
@@ -83,10 +85,8 @@ public class GotService {
         }
 
         deadPerFamilyCalculation(deadDto);
-        return deadRepository.save(GotMapper.toDead(deadDto));
+        return GotMapper.toDeadDto(deadRepository.save(GotMapper.toDead(deadDto)));
     }
-
-
 
     private void deadPerFamilyCalculation(DeadDto dead) {
         Family family = familyRepository.findByName(dead.getFamily());
@@ -94,12 +94,22 @@ public class GotService {
         familyRepository.save(family);
     }
 
-    public void insertFamilys(Set<String> familyNames) {
+    public void insertFamilys(List<String> familyNames) {
         familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
     }
 
-    public List<Family> findDeadsPerFamily() {
-        return familyRepository.findAll();
+    public List<FamilyDto> findDeadsPerFamily() {
+        return GotMapper.toFamilyDtoList(familyRepository.findAll());
+    }
+
+    public CharacterDto deleteCharacter(String fullName) {
+        Character character = characterRepository.findByFullName(fullName);
+        if(character != null){
+            characterRepository.deleteByFullName(fullName);
+            return GotMapper.toCharacterDto(character);
+        }
+
+        throw new CharacterNotFoundException(fullName);
     }
 
     private Boolean isValidContinent(String continent){
