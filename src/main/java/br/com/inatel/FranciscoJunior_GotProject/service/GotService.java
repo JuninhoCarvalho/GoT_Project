@@ -19,6 +19,7 @@ import org.springframework.web.reactive.function.client.WebClientException;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -39,7 +40,7 @@ public class GotService {
     public List<Character> populateCharactersDb(){
         try {
             List<Character> characters = GotMapper.toCharacterList(gotAdapter.listCharacters());
-            characters.forEach(c -> characterRepository.save(c));
+            characterRepository.saveAll(characters);
 
             return characters;
         }catch(WebClientException webClientException){
@@ -58,13 +59,26 @@ public class GotService {
     }
 
     public CharacterDto findCharacter(String name) {
-        return GotMapper.toCharacterDto(characterRepository.findByFullName(name));
-    }
-    public List<Continent> findAllContinents(){
-        return GotMapper.toContinentList(gotAdapter.listContinents());
+        Optional<Character> character = characterRepository.findByFullName(name);
+
+        if(character.isPresent()){
+            return GotMapper.toCharacterDto(character.get());
+        }
+
+        throw new CharacterNotFoundException(name);
+
     }
 
     public CharacterDto createCharacter(CharacterDto characterDto) {
+        Optional<Character> character = characterRepository.findByFullName(characterDto.getFullName());
+
+        if(character.isPresent()){
+            throw new CharacterAlreadyExistsException(characterDto.getFullName());
+        }
+        else if(!isValidFamily(characterDto.getFamily())){
+            throw new FamilyDoesnExistException(characterDto.getFamily());
+        }
+
         return GotMapper.toCharacterDto(characterRepository.save(GotMapper.toCharacter(characterDto)));
     }
 
@@ -89,7 +103,7 @@ public class GotService {
     }
 
     private void deadPerFamilyCalculation(DeadDto dead) {
-        Family family = familyRepository.findByName(dead.getFamily());
+        Family family = familyRepository.findByName(dead.getFamily()).get();
         family.setDeads(family.getDeads() + 1);
         familyRepository.save(family);
     }
@@ -103,10 +117,10 @@ public class GotService {
     }
 
     public CharacterDto deleteCharacter(String fullName) {
-        Character character = characterRepository.findByFullName(fullName);
-        if(character != null){
+        Optional<Character> character = characterRepository.findByFullName(fullName);
+        if(character.isPresent()){
             characterRepository.deleteByFullName(fullName);
-            return GotMapper.toCharacterDto(character);
+            return GotMapper.toCharacterDto(character.get());
         }
 
         throw new CharacterNotFoundException(fullName);
@@ -119,10 +133,10 @@ public class GotService {
     }
 
     private Boolean isValidFamily(String name){
-        return familyRepository.findByName(name) != null;
+        return familyRepository.findByName(name).isPresent();
     }
 
     private boolean theCharactarAlreadyDead(String name, String family) {
-        return deadRepository.findByNameAndFamily(name, family) != null;
+        return deadRepository.findByNameAndFamily(name, family).isPresent();
     }
 }
