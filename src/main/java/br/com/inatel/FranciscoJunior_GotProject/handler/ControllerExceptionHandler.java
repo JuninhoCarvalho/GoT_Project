@@ -23,7 +23,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(FamilyDoesnExistException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public Error continentNotFoundException(FamilyDoesnExistException familyDoesnExistException){
+    public Error familyDoesnExistException(FamilyDoesnExistException familyDoesnExistException){
         return Error.builder()
                 .httpStatusCode(HttpStatus.NOT_FOUND)
                 .message(familyDoesnExistException.getMessage())
@@ -36,6 +36,15 @@ public class ControllerExceptionHandler {
         return Error.builder()
                 .httpStatusCode(HttpStatus.FOUND)
                 .message(characterAlreadyDeadException.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(CharacterAlreadyExistsException.class)
+    @ResponseStatus(value = HttpStatus.FOUND)
+    public Error characterAlreadyExistsException(CharacterAlreadyExistsException characterAlreadyExistsException){
+        return Error.builder()
+                .httpStatusCode(HttpStatus.FOUND)
+                .message(characterAlreadyExistsException.getMessage())
                 .build();
     }
 
