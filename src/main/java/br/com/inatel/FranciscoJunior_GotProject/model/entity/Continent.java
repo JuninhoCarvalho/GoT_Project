@@ -16,6 +16,6 @@ import javax.persistence.Id;
 public class Continent {
 
     @Id
-    private Integer id;
+    private int id;
     private String name;
 }

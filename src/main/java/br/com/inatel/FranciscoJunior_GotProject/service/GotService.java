@@ -14,6 +14,8 @@ import br.com.inatel.FranciscoJunior_GotProject.repository.DeadRepository;
 import br.com.inatel.FranciscoJunior_GotProject.repository.FamilyRepository;
 import org.hibernate.exception.JDBCConnectionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientException;
 
@@ -47,7 +49,7 @@ public class GotService {
             throw new ExternalApiConnectionException(webClientException);
         }
     }
-
+    @Cacheable(value = "charactersList")
     public List<CharacterDto> findAllCharacters(){
         try {
             List<Character> characters = characterRepository.findAll();
@@ -69,6 +71,7 @@ public class GotService {
 
     }
 
+    @CacheEvict(value = "charactersList", allEntries = true)
     public CharacterDto createCharacter(CharacterDto characterDto) {
         Optional<Character> character = characterRepository.findByFullName(characterDto.getFullName());
 
@@ -82,10 +85,16 @@ public class GotService {
         return GotMapper.toCharacterDto(characterRepository.save(GotMapper.toCharacter(characterDto)));
     }
 
+    public void insertFamilys(List<String> familyNames) {
+        familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
+    }
+
+    @Cacheable(value = "deadsList")
     public List<DeadDto> findAllDeads() {
         return GotMapper.toDeadDtoList(deadRepository.findAll());
     }
 
+    @CacheEvict(value = "deadsList", allEntries = true)
     public DeadDto includeNewDead(DeadDto deadDto) {
 
         if(!isValidContinent(deadDto.getContinent())){
@@ -102,20 +111,19 @@ public class GotService {
         return GotMapper.toDeadDto(deadRepository.save(GotMapper.toDead(deadDto)));
     }
 
-    private void deadPerFamilyCalculation(DeadDto dead) {
+    @Cacheable(value = "deadsPerFamilyList")
+    public List<FamilyDto> findDeadsPerFamily() {
+        return GotMapper.toFamilyDtoList(familyRepository.findAll());
+    }
+
+    @CacheEvict(value = "deadsPerFamilyList", allEntries = true)
+    public void deadPerFamilyCalculation(DeadDto dead) {
         Family family = familyRepository.findByName(dead.getFamily()).get();
         family.setDeads(family.getDeads() + 1);
         familyRepository.save(family);
     }
 
-    public void insertFamilys(List<String> familyNames) {
-        familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
-    }
-
-    public List<FamilyDto> findDeadsPerFamily() {
-        return GotMapper.toFamilyDtoList(familyRepository.findAll());
-    }
-
+    @CacheEvict(value = "charactersList", allEntries = true)
     public CharacterDto deleteCharacter(String fullName) {
         Optional<Character> character = characterRepository.findByFullName(fullName);
         if(character.isPresent()){
