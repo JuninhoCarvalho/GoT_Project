@@ -17,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientException;
 
@@ -55,11 +53,9 @@ public class GotService {
         }
     }
     @Cacheable(value = "charactersList")
-    public Page<CharacterDto> findAllCharacters(int page, int qtd){
+    public Page<CharacterDto> findAllCharacters(Pageable page){
         try {
-            Pageable pages = PageRequest.of(page, qtd);
-
-            Page<Character> characters = characterRepository.findAll(pages);
+            Page<Character> characters = characterRepository.findAll(page);
 
             return GotMapper.toCharacterDtoPage(characters);
         }catch(JDBCConnectionException jdbcConnectionException) {
@@ -119,9 +115,8 @@ public class GotService {
     }
 
     @Cacheable(value = "deadsPerFamilyList")
-    public Page<FamilyDto> findDeadsPerFamily(int page, int qtd, String sort) {
-        Pageable pages = PageRequest.of(page, qtd, Sort.Direction.ASC, sort);
-        Page<Family> families = familyRepository.findAll(pages);
+    public Page<FamilyDto> findDeadsPerFamily(Pageable page) {
+        Page<Family> families = familyRepository.findAll(page);
 
         return GotMapper.toFamilyDtoPage(families);
     }

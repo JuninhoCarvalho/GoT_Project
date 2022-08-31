@@ -4,6 +4,8 @@ import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
 import br.com.inatel.FranciscoJunior_GotProject.service.GotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +19,8 @@ public class CharacterController {
     GotService gotService;
 
     @GetMapping
-    public ResponseEntity<Page<CharacterDto>> listAllCharacters(@RequestParam int page, @RequestParam int qtd){
-        return ResponseEntity.ok(gotService.findAllCharacters(page, qtd));
+    public ResponseEntity<Page<CharacterDto>> listAllCharacters(@PageableDefault(page = 0, size = 25) Pageable page){
+        return ResponseEntity.ok(gotService.findAllCharacters(page));
     }
 
     @GetMapping

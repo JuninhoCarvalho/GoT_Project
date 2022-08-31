@@ -5,6 +5,9 @@ import br.com.inatel.FranciscoJunior_GotProject.model.dto.FamilyDto;
 import br.com.inatel.FranciscoJunior_GotProject.service.GotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +26,9 @@ public class DeadController {
     }
 
     @GetMapping("/Family")
-    public ResponseEntity<Page<FamilyDto>> listDeadsPerFamily(@RequestParam int page, @RequestParam int qtd, @RequestParam String sort){
-        return ResponseEntity.ok(gotService.findDeadsPerFamily(page, qtd, sort));
+    public ResponseEntity<Page<FamilyDto>> listDeadsPerFamily(@PageableDefault(sort = "name", direction = Sort.Direction.ASC,
+            page = 0, size = 20) Pageable page){
+        return ResponseEntity.ok(gotService.findDeadsPerFamily(page));
     }
 
     @PostMapping
