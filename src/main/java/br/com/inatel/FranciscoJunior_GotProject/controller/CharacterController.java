@@ -3,11 +3,11 @@ package br.com.inatel.FranciscoJunior_GotProject.controller;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
 import br.com.inatel.FranciscoJunior_GotProject.service.GotService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/Characters")
@@ -17,8 +17,8 @@ public class CharacterController {
     GotService gotService;
 
     @GetMapping
-    public ResponseEntity<List<CharacterDto>> listAllCharacters(){
-        return ResponseEntity.ok(gotService.findAllCharacters());
+    public ResponseEntity<Page<CharacterDto>> listAllCharacters(@RequestParam int page, @RequestParam int qtd){
+        return ResponseEntity.ok(gotService.findAllCharacters(page, qtd));
     }
 
     @GetMapping

@@ -16,12 +16,17 @@ import org.hibernate.exception.JDBCConnectionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -50,12 +55,14 @@ public class GotService {
         }
     }
     @Cacheable(value = "charactersList")
-    public List<CharacterDto> findAllCharacters(){
+    public Page<CharacterDto> findAllCharacters(int page, int qtd){
         try {
-            List<Character> characters = characterRepository.findAll();
+            Pageable pages = PageRequest.of(page, qtd);
 
-            return GotMapper.toCharacterDtoList(characters);
-        }catch(JDBCConnectionException jdbcConnectionException){
+            Page<Character> characters = characterRepository.findAll(pages);
+
+            return GotMapper.toCharacterDtoPage(characters);
+        }catch(JDBCConnectionException jdbcConnectionException) {
             throw new ConnectionJDBCFailedException(jdbcConnectionException);
         }
     }
@@ -85,7 +92,7 @@ public class GotService {
         return GotMapper.toCharacterDto(characterRepository.save(GotMapper.toCharacter(characterDto)));
     }
 
-    public void insertFamilys(List<String> familyNames) {
+    public void insertFamilys(Set<String> familyNames) {
         familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
     }
 
@@ -112,8 +119,11 @@ public class GotService {
     }
 
     @Cacheable(value = "deadsPerFamilyList")
-    public List<FamilyDto> findDeadsPerFamily() {
-        return GotMapper.toFamilyDtoList(familyRepository.findAll());
+    public Page<FamilyDto> findDeadsPerFamily(int page, int qtd, String sort) {
+        Pageable pages = PageRequest.of(page, qtd, Sort.Direction.ASC, sort);
+        Page<Family> families = familyRepository.findAll(pages);
+
+        return GotMapper.toFamilyDtoPage(families);
     }
 
     @CacheEvict(value = "deadsPerFamilyList", allEntries = true)

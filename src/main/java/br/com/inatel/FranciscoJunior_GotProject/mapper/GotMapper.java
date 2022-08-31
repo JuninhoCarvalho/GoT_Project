@@ -9,6 +9,7 @@ import br.com.inatel.FranciscoJunior_GotProject.model.entity.Character;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Continent;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Dead;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Family;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,12 +24,16 @@ public class GotMapper {
         return characters.stream().map(GotMapper::toCharacterDto).collect(Collectors.toList());
     }
 
-    public static List<Continent> toContinentList(List<ContinentDto> continentsDto){
-        return continentsDto.stream().map(GotMapper::toContinent).collect(Collectors.toList());
+    public static Page<CharacterDto> toCharacterDtoPage(Page<Character> characters){
+        return characters.map(GotMapper::toCharacterDto);
     }
 
-    public static List<FamilyDto> toFamilyDtoList(List<Family> families){
-        return families.stream().map(GotMapper::toFamilyDto).collect(Collectors.toList());
+    public static Page<FamilyDto> toFamilyDtoPage(Page<Family> families) {
+        return families.map(GotMapper::toFamilyDto);
+    }
+
+    public static List<Continent> toContinentList(List<ContinentDto> continentsDto){
+        return continentsDto.stream().map(GotMapper::toContinent).collect(Collectors.toList());
     }
 
     public static List<DeadDto> toDeadDtoList(List<Dead> deads){
@@ -91,4 +96,6 @@ public class GotMapper {
                 .continent(dd.getContinent())
                 .build();
     }
+
+
 }
