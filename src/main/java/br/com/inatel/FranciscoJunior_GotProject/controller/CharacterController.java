@@ -30,7 +30,7 @@ public class CharacterController {
     }
 
     @PostMapping
-    public ResponseEntity<CharacterDto> createACharacter(@RequestBody CharacterDto characterDto){
+    public ResponseEntity<CharacterDto> createACharacter(@RequestBody @Valid CharacterDto characterDto){
         return ResponseEntity.created(null).body(gotService.createCharacter(characterDto));
     }
 

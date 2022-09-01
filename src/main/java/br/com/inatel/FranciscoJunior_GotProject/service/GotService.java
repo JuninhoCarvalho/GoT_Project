@@ -12,7 +12,6 @@ import br.com.inatel.FranciscoJunior_GotProject.model.entity.Family;
 import br.com.inatel.FranciscoJunior_GotProject.repository.CharacterRepository;
 import br.com.inatel.FranciscoJunior_GotProject.repository.DeadRepository;
 import br.com.inatel.FranciscoJunior_GotProject.repository.FamilyRepository;
-import org.hibernate.exception.JDBCConnectionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -54,13 +53,7 @@ public class GotService {
     }
     @Cacheable(value = "charactersList")
     public Page<CharacterDto> findAllCharacters(Pageable page){
-        try {
-            Page<Character> characters = characterRepository.findAll(page);
-
-            return GotMapper.toCharacterDtoPage(characters);
-        }catch(JDBCConnectionException jdbcConnectionException) {
-            throw new ConnectionJDBCFailedException(jdbcConnectionException);
-        }
+        return GotMapper.toCharacterDtoPage(characterRepository.findAll(page));
     }
 
     public CharacterDto findCharacter(String name) {
@@ -71,11 +64,11 @@ public class GotService {
         }
 
         throw new CharacterNotFoundException(name);
-
     }
 
     @CacheEvict(value = "charactersList", allEntries = true)
     public CharacterDto createCharacter(CharacterDto characterDto) {
+
         Optional<Character> character = characterRepository.findByFullName(characterDto.getFullName());
 
         if(character.isPresent()){
@@ -86,6 +79,7 @@ public class GotService {
         }
 
         return GotMapper.toCharacterDto(characterRepository.save(GotMapper.toCharacter(characterDto)));
+
     }
 
     public void insertFamilys(Set<String> familyNames) {
@@ -116,9 +110,7 @@ public class GotService {
 
     @Cacheable(value = "deadsPerFamilyList")
     public Page<FamilyDto> findDeadsPerFamily(Pageable page) {
-        Page<Family> families = familyRepository.findAll(page);
-
-        return GotMapper.toFamilyDtoPage(families);
+        return GotMapper.toFamilyDtoPage(familyRepository.findAll(page));
     }
 
     @CacheEvict(value = "deadsPerFamilyList", allEntries = true)
@@ -131,6 +123,7 @@ public class GotService {
     @CacheEvict(value = "charactersList", allEntries = true)
     public CharacterDto deleteCharacter(String fullName) {
         Optional<Character> character = characterRepository.findByFullName(fullName);
+
         if(character.isPresent()){
             characterRepository.deleteByFullName(fullName);
             return GotMapper.toCharacterDto(character.get());

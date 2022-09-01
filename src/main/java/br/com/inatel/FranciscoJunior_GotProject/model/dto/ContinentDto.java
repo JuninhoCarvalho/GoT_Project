@@ -6,13 +6,17 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ContinentDto {
 
+    @NotNull
     private Integer id;
+    @NotNull
     private String name;
 
     public ContinentDto(Continent continent) {

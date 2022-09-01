@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,7 +14,10 @@ import lombok.NoArgsConstructor;
 public class DeadDto {
 
     private Integer id;
+    @NotNull
     private String name;
+    @NotNull
     private String family;
+    @NotNull
     private String continent;
 }

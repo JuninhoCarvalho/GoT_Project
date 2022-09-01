@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,6 +14,8 @@ import lombok.NoArgsConstructor;
 public class FamilyDto {
 
     private Integer id;
+    @NotNull
     private String name;
+    @NotNull
     private Integer deads;
 }
