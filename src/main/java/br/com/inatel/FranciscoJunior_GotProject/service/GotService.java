@@ -29,17 +29,21 @@ import java.util.Set;
 @Transactional
 public class GotService {
 
-    @Autowired
     GotAdapter gotAdapter;
 
-    @Autowired
     CharacterRepository characterRepository;
 
-    @Autowired
     FamilyRepository familyRepository;
 
-    @Autowired
     DeadRepository deadRepository;
+
+    @Autowired
+    public GotService(GotAdapter gotAdapter, CharacterRepository characterRepository, FamilyRepository familyRepository, DeadRepository deadRepository) {
+        this.gotAdapter = gotAdapter;
+        this.characterRepository = characterRepository;
+        this.familyRepository = familyRepository;
+        this.deadRepository = deadRepository;
+    }
 
     public List<Character> populateCharactersDb(){
         try {

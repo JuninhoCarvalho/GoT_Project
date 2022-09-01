@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,18 +21,21 @@ public class DeadController {
     GotService gotService;
 
     @GetMapping
-    public ResponseEntity<List<DeadDto>> listAllDeads(){
-        return ResponseEntity.ok(gotService.findAllDeads());
+    @ResponseStatus(HttpStatus.OK)
+    public List<DeadDto> listAllDeads(){
+        return gotService.findAllDeads();
     }
 
     @GetMapping("/Family")
-    public ResponseEntity<Page<FamilyDto>> listDeadsPerFamily(@PageableDefault(sort = "name", direction = Sort.Direction.ASC,
+    @ResponseStatus(HttpStatus.OK)
+    public Page<FamilyDto> listDeadsPerFamily(@PageableDefault(sort = "name", direction = Sort.Direction.ASC,
             page = 0, size = 20) Pageable page){
-        return ResponseEntity.ok(gotService.findDeadsPerFamily(page));
+        return gotService.findDeadsPerFamily(page);
     }
 
     @PostMapping
-    public ResponseEntity<DeadDto> includeNewDead(@RequestBody DeadDto deadDto) {
-        return ResponseEntity.created(null).body(gotService.includeNewDead(deadDto));
+    @ResponseStatus(HttpStatus.CREATED)
+    public DeadDto includeNewDead(@RequestBody DeadDto deadDto) {
+        return gotService.includeNewDead(deadDto);
     }
 }

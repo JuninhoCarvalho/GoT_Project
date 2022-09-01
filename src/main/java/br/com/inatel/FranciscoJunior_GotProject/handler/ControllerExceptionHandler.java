@@ -26,7 +26,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(FamilyDoesnExistException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public Error familyDoesnExistException(FamilyDoesnExistException familyDoesnExistException){
+    public Error familyDoesntExistException(FamilyDoesnExistException familyDoesnExistException){
         return Error.builder()
                 .httpStatusCode(HttpStatus.NOT_FOUND)
                 .message(familyDoesnExistException.getMessage())
