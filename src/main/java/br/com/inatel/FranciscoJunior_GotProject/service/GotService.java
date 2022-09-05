@@ -4,10 +4,10 @@ import br.com.inatel.FranciscoJunior_GotProject.adapter.GotAdapter;
 import br.com.inatel.FranciscoJunior_GotProject.exception.*;
 import br.com.inatel.FranciscoJunior_GotProject.mapper.GotMapper;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
+import br.com.inatel.FranciscoJunior_GotProject.model.dto.ContinentDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.FamilyDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Character;
-import br.com.inatel.FranciscoJunior_GotProject.model.entity.Continent;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Family;
 import br.com.inatel.FranciscoJunior_GotProject.repository.CharacterRepository;
 import br.com.inatel.FranciscoJunior_GotProject.repository.DeadRepository;
@@ -86,6 +86,18 @@ public class GotService {
 
     }
 
+    @CacheEvict(value = "charactersList", allEntries = true)
+    public CharacterDto deleteCharacter(String fullName) {
+        Optional<Character> character = characterRepository.findByFullName(fullName);
+
+        if(character.isPresent()){
+            characterRepository.deleteByFullName(fullName);
+            return GotMapper.toCharacterDto(character.get());
+        }
+
+        throw new CharacterNotFoundException(fullName);
+    }
+
     public void insertFamilys(Set<String> familyNames) {
         familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
     }
@@ -98,7 +110,10 @@ public class GotService {
     @CacheEvict(value = "deadsList", allEntries = true)
     public DeadDto includeNewDead(DeadDto deadDto) {
 
-        if(!isValidContinent(deadDto.getContinent())){
+        if(characterRepository.findByFullName(deadDto.getName()).isEmpty()) {
+            throw new CharacterNotFoundException(deadDto.getName());
+        }
+        else if(!isValidContinent(deadDto.getContinent())){
             throw new ContinentNotFoundException(deadDto.getContinent());
         }
         else if(!isValidFamily(deadDto.getFamily())) {
@@ -124,22 +139,10 @@ public class GotService {
         familyRepository.save(family);
     }
 
-    @CacheEvict(value = "charactersList", allEntries = true)
-    public CharacterDto deleteCharacter(String fullName) {
-        Optional<Character> character = characterRepository.findByFullName(fullName);
-
-        if(character.isPresent()){
-            characterRepository.deleteByFullName(fullName);
-            return GotMapper.toCharacterDto(character.get());
-        }
-
-        throw new CharacterNotFoundException(fullName);
-    }
-
     private Boolean isValidContinent(String continent){
-        List<Continent> continents = GotMapper.toContinentList(gotAdapter.listContinents());
+        List<ContinentDto> continentsDto = gotAdapter.listContinents();
 
-        return continents.stream().anyMatch(c -> c.getName().equals(continent));
+        return continentsDto.stream().anyMatch(c -> c.getName().equals(continent));
     }
 
     private Boolean isValidFamily(String name){

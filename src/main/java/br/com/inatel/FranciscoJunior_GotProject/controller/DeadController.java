@@ -17,8 +17,12 @@ import java.util.List;
 @RequestMapping("/Deads")
 public class DeadController {
 
-    @Autowired
     GotService gotService;
+
+    @Autowired
+    public DeadController(GotService gotService) {
+        this.gotService = gotService;
+    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

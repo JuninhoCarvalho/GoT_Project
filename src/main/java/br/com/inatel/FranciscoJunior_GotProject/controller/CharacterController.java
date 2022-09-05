@@ -16,8 +16,12 @@ import javax.validation.Valid;
 @RequestMapping("/Characters")
 public class CharacterController {
 
-    @Autowired
     GotService gotService;
+
+    @Autowired
+    public CharacterController(GotService gotService) {
+        this.gotService = gotService;
+    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
