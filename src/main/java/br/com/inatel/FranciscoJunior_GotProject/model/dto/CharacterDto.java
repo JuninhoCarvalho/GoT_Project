@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,11 +14,18 @@ import lombok.NoArgsConstructor;
 public class CharacterDto {
 
     private Integer id;
+    @NotNull
     private String firstName;
+    @NotNull
     private String lastName;
+    @NotNull
     private String fullName;
+    @NotNull
     private String title;
+    @NotNull
     private String family;
+    @NotNull
     private String image;
+    @NotNull
     private String imageUrl;
 }

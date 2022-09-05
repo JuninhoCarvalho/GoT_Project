@@ -2,7 +2,10 @@ package br.com.inatel.FranciscoJunior_GotProject.handler;
 
 import br.com.inatel.FranciscoJunior_GotProject.exception.*;
 import br.com.inatel.FranciscoJunior_GotProject.model.rest.Error;
+import org.hibernate.exception.JDBCConnectionException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -23,7 +26,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(FamilyDoesnExistException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public Error familyDoesnExistException(FamilyDoesnExistException familyDoesnExistException){
+    public Error familyDoesntExistException(FamilyDoesnExistException familyDoesnExistException){
         return Error.builder()
                 .httpStatusCode(HttpStatus.NOT_FOUND)
                 .message(familyDoesnExistException.getMessage())
@@ -66,12 +69,29 @@ public class ControllerExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(ConnectionJDBCFailedException.class)
+    @ExceptionHandler(JDBCConnectionException.class)
     @ResponseStatus(value = HttpStatus.SERVICE_UNAVAILABLE)
-    public Error connectionJDBCFailedException(ConnectionJDBCFailedException connectionJDBCFailedException){
+    public Error connectionJDBCFailedException(JDBCConnectionException connectionJDBCFailedException){
         return Error.builder()
                 .httpStatusCode(HttpStatus.SERVICE_UNAVAILABLE)
                 .message(connectionJDBCFailedException.getMessage())
+                .build();
+    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public Error fieldNullException(MethodArgumentNotValidException fieldNullException){
+        return Error.builder()
+                .httpStatusCode(HttpStatus.BAD_REQUEST)
+                .message(String.valueOf(fieldNullException.getFieldError().getField() +  " field is missing!"))
+                .build();
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public Error fieldNullException(HttpMessageNotReadableException jsonError){
+        return Error.builder()
+                .httpStatusCode(HttpStatus.BAD_REQUEST)
+                .message(jsonError.getMessage())
                 .build();
     }
 }

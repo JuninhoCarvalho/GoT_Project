@@ -7,13 +7,19 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class ExecuteInstructionsListener implements ApplicationListener<ApplicationReadyEvent> {
 
-    @Autowired
     GotService gotService;
+
+    @Autowired
+    public ExecuteInstructionsListener(GotService gotService) {
+        this.gotService = gotService;
+    }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -22,9 +28,6 @@ public class ExecuteInstructionsListener implements ApplicationListener<Applicat
         Set<String> familyNames = new HashSet<>();
         characters.forEach(c -> familyNames.add(c.getFamily()));
 
-        List<String> names = new ArrayList<>(familyNames);
-        Collections.sort(names);
-
-        gotService.insertFamilys(names);
+        gotService.insertFamilys(familyNames);
     }
 }

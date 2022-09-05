@@ -4,40 +4,46 @@ import br.com.inatel.FranciscoJunior_GotProject.adapter.GotAdapter;
 import br.com.inatel.FranciscoJunior_GotProject.exception.*;
 import br.com.inatel.FranciscoJunior_GotProject.mapper.GotMapper;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
+import br.com.inatel.FranciscoJunior_GotProject.model.dto.ContinentDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.FamilyDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Character;
-import br.com.inatel.FranciscoJunior_GotProject.model.entity.Continent;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Family;
 import br.com.inatel.FranciscoJunior_GotProject.repository.CharacterRepository;
 import br.com.inatel.FranciscoJunior_GotProject.repository.DeadRepository;
 import br.com.inatel.FranciscoJunior_GotProject.repository.FamilyRepository;
-import org.hibernate.exception.JDBCConnectionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
 public class GotService {
 
-    @Autowired
     GotAdapter gotAdapter;
 
-    @Autowired
     CharacterRepository characterRepository;
 
-    @Autowired
     FamilyRepository familyRepository;
 
-    @Autowired
     DeadRepository deadRepository;
+
+    @Autowired
+    public GotService(GotAdapter gotAdapter, CharacterRepository characterRepository, FamilyRepository familyRepository, DeadRepository deadRepository) {
+        this.gotAdapter = gotAdapter;
+        this.characterRepository = characterRepository;
+        this.familyRepository = familyRepository;
+        this.deadRepository = deadRepository;
+    }
 
     public List<Character> populateCharactersDb(){
         try {
@@ -50,14 +56,8 @@ public class GotService {
         }
     }
     @Cacheable(value = "charactersList")
-    public List<CharacterDto> findAllCharacters(){
-        try {
-            List<Character> characters = characterRepository.findAll();
-
-            return GotMapper.toCharacterDtoList(characters);
-        }catch(JDBCConnectionException jdbcConnectionException){
-            throw new ConnectionJDBCFailedException(jdbcConnectionException);
-        }
+    public Page<CharacterDto> findAllCharacters(Pageable page){
+        return GotMapper.toCharacterDtoPage(characterRepository.findAll(page));
     }
 
     public CharacterDto findCharacter(String name) {
@@ -68,11 +68,11 @@ public class GotService {
         }
 
         throw new CharacterNotFoundException(name);
-
     }
 
     @CacheEvict(value = "charactersList", allEntries = true)
     public CharacterDto createCharacter(CharacterDto characterDto) {
+
         Optional<Character> character = characterRepository.findByFullName(characterDto.getFullName());
 
         if(character.isPresent()){
@@ -83,9 +83,22 @@ public class GotService {
         }
 
         return GotMapper.toCharacterDto(characterRepository.save(GotMapper.toCharacter(characterDto)));
+
     }
 
-    public void insertFamilys(List<String> familyNames) {
+    @CacheEvict(value = "charactersList", allEntries = true)
+    public CharacterDto deleteCharacter(String fullName) {
+        Optional<Character> character = characterRepository.findByFullName(fullName);
+
+        if(character.isPresent()){
+            characterRepository.deleteByFullName(fullName);
+            return GotMapper.toCharacterDto(character.get());
+        }
+
+        throw new CharacterNotFoundException(fullName);
+    }
+
+    public void insertFamilys(Set<String> familyNames) {
         familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
     }
 
@@ -97,7 +110,10 @@ public class GotService {
     @CacheEvict(value = "deadsList", allEntries = true)
     public DeadDto includeNewDead(DeadDto deadDto) {
 
-        if(!isValidContinent(deadDto.getContinent())){
+        if(characterRepository.findByFullName(deadDto.getName()).isEmpty()) {
+            throw new CharacterNotFoundException(deadDto.getName());
+        }
+        else if(!isValidContinent(deadDto.getContinent())){
             throw new ContinentNotFoundException(deadDto.getContinent());
         }
         else if(!isValidFamily(deadDto.getFamily())) {
@@ -112,8 +128,8 @@ public class GotService {
     }
 
     @Cacheable(value = "deadsPerFamilyList")
-    public List<FamilyDto> findDeadsPerFamily() {
-        return GotMapper.toFamilyDtoList(familyRepository.findAll());
+    public Page<FamilyDto> findDeadsPerFamily(Pageable page) {
+        return GotMapper.toFamilyDtoPage(familyRepository.findAll(page));
     }
 
     @CacheEvict(value = "deadsPerFamilyList", allEntries = true)
@@ -123,21 +139,10 @@ public class GotService {
         familyRepository.save(family);
     }
 
-    @CacheEvict(value = "charactersList", allEntries = true)
-    public CharacterDto deleteCharacter(String fullName) {
-        Optional<Character> character = characterRepository.findByFullName(fullName);
-        if(character.isPresent()){
-            characterRepository.deleteByFullName(fullName);
-            return GotMapper.toCharacterDto(character.get());
-        }
-
-        throw new CharacterNotFoundException(fullName);
-    }
-
     private Boolean isValidContinent(String continent){
-        List<Continent> continents = GotMapper.toContinentList(gotAdapter.listContinents());
+        List<ContinentDto> continentsDto = gotAdapter.listContinents();
 
-        return continents.stream().anyMatch(c -> c.getName().equals(continent));
+        return continentsDto.stream().anyMatch(c -> c.getName().equals(continent));
     }
 
     private Boolean isValidFamily(String name){
