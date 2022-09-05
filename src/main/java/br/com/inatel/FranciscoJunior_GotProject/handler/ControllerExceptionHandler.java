@@ -24,9 +24,9 @@ public class ControllerExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(FamilyDoesnExistException.class)
+    @ExceptionHandler(FamilyDoesntExistException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public Error familyDoesntExistException(FamilyDoesnExistException familyDoesnExistException){
+    public Error familyDoesntExistException(FamilyDoesntExistException familyDoesnExistException){
         return Error.builder()
                 .httpStatusCode(HttpStatus.NOT_FOUND)
                 .message(familyDoesnExistException.getMessage())
@@ -34,19 +34,19 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(CharacterAlreadyDeadException.class)
-    @ResponseStatus(value = HttpStatus.FOUND)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
     public Error characterAlreadyDeadException(CharacterAlreadyDeadException characterAlreadyDeadException){
         return Error.builder()
-                .httpStatusCode(HttpStatus.FOUND)
+                .httpStatusCode(HttpStatus.CONFLICT)
                 .message(characterAlreadyDeadException.getMessage())
                 .build();
     }
 
     @ExceptionHandler(CharacterAlreadyExistsException.class)
-    @ResponseStatus(value = HttpStatus.FOUND)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
     public Error characterAlreadyExistsException(CharacterAlreadyExistsException characterAlreadyExistsException){
         return Error.builder()
-                .httpStatusCode(HttpStatus.FOUND)
+                .httpStatusCode(HttpStatus.CONFLICT)
                 .message(characterAlreadyExistsException.getMessage())
                 .build();
     }
