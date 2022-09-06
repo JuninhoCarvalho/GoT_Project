@@ -29,21 +29,17 @@ import java.util.Set;
 @Transactional
 public class GotService {
 
+    @Autowired
     GotAdapter gotAdapter;
 
+    @Autowired
     CharacterRepository characterRepository;
 
+    @Autowired
     FamilyRepository familyRepository;
 
-    DeadRepository deadRepository;
-
     @Autowired
-    public GotService(GotAdapter gotAdapter, CharacterRepository characterRepository, FamilyRepository familyRepository, DeadRepository deadRepository) {
-        this.gotAdapter = gotAdapter;
-        this.characterRepository = characterRepository;
-        this.familyRepository = familyRepository;
-        this.deadRepository = deadRepository;
-    }
+    DeadRepository deadRepository;
 
     public List<Character> populateCharactersDb(){
         try {
@@ -79,7 +75,7 @@ public class GotService {
             throw new CharacterAlreadyExistsException(characterDto.getFullName());
         }
         else if(!isValidFamily(characterDto.getFamily())){
-            throw new FamilyDoesnExistException(characterDto.getFamily());
+            throw new FamilyDoesntExistException(characterDto.getFamily());
         }
 
         return GotMapper.toCharacterDto(characterRepository.save(GotMapper.toCharacter(characterDto)));
@@ -117,7 +113,7 @@ public class GotService {
             throw new ContinentNotFoundException(deadDto.getContinent());
         }
         else if(!isValidFamily(deadDto.getFamily())) {
-            throw new FamilyDoesnExistException(deadDto.getFamily());
+            throw new FamilyDoesntExistException(deadDto.getFamily());
         }
         else if(theCharactarAlreadyDead(deadDto.getName(), deadDto.getFamily())){
             throw new CharacterAlreadyDeadException(deadDto.getName(), deadDto.getFamily());
@@ -139,7 +135,8 @@ public class GotService {
         familyRepository.save(family);
     }
 
-    private Boolean isValidContinent(String continent){
+    @Cacheable(value = "continentsApi")
+    public Boolean isValidContinent(String continent){
         List<ContinentDto> continentsDto = gotAdapter.listContinents();
 
         return continentsDto.stream().anyMatch(c -> c.getName().equals(continent));
