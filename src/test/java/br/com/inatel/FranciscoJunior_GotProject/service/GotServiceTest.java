@@ -5,8 +5,8 @@ import br.com.inatel.FranciscoJunior_GotProject.exception.CharacterAlreadyExists
 import br.com.inatel.FranciscoJunior_GotProject.exception.CharacterNotFoundException;
 import br.com.inatel.FranciscoJunior_GotProject.exception.FamilyDoesntExistException;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
+import br.com.inatel.FranciscoJunior_GotProject.model.dto.ContinentDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
-import br.com.inatel.FranciscoJunior_GotProject.model.dto.FamilyDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Character;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Client;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Dead;
@@ -55,10 +55,11 @@ public class GotServiceTest {
     private Dead dead;
     private DeadDto deadDto;
     private Family family;
-    private FamilyDto familyDto;
+    private ContinentDto continentDto;
     private Page<Character> characterPage;
     private List<Character> characterList = new ArrayList<>();
     private List<Dead> deads = new ArrayList<>();
+    private List<ContinentDto> continentDtos = new ArrayList<>();
     Optional<Character> optCharacter;
     Optional<Family> optFamily;
     Pageable page = PageRequest.of(0, 10);
@@ -117,10 +118,9 @@ public class GotServiceTest {
                 .deads(4)
                 .build();
 
-        familyDto = FamilyDto.builder()
+        continentDto = ContinentDto.builder()
                 .id(1)
-                .name("House Stark")
-                .deads(4)
+                .name("Westeros")
                 .build();
 
         characterList = new ArrayList<>();
@@ -256,6 +256,34 @@ public class GotServiceTest {
         assertEquals(deadDtos.get(0).getName(), "Francisco Junior");
         assertEquals(deadDtos.get(0).getFamily(), "House Stark");
         assertEquals(deadDtos.get(0).getContinent(), "Westeros");
+    }
+
+    @Test
+    public void givenDeadDto_whenIncludeNewDeadAndInformationsIsValid_shouldReturnDeadDto(){
+        continentDtos.add(continentDto);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(gotAdapter.listContinents()).thenReturn(continentDtos);
+        when(familyRepository.findByName(any(String.class))).thenReturn(optFamily);
+        when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(Optional.empty());
+        when(deadRepository.save(any(Dead.class))).thenReturn(dead);
+
+        DeadDto deadReturn = gotService.includeNewDead(deadDto);
+
+        assertEquals(deadReturn.getId(), dead.getId());
+        assertEquals(deadReturn.getName(), dead.getName());
+        assertEquals(deadReturn.getFamily(), dead.getFamily());
+        assertEquals(deadReturn.getContinent(), dead.getContinent());
+    }
+
+    @Test
+    public void givenDeadDto_whenIncludeNewDeadAndCharacterDoesntExist_shouldReturnCharacterNotFoundException(){
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.empty());
+
+        Throwable throwable = catchThrowable(() -> gotService.includeNewDead(deadDto));
+
+        assertThat(throwable)
+                .isInstanceOf(CharacterNotFoundException.class)
+                .hasMessageContaining("Francisco Junior Not Found!");
     }
 }
 
