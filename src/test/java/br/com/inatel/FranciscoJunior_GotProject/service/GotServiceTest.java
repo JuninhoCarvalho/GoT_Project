@@ -2,6 +2,7 @@ package br.com.inatel.FranciscoJunior_GotProject.service;
 
 import br.com.inatel.FranciscoJunior_GotProject.adapter.GotAdapter;
 import br.com.inatel.FranciscoJunior_GotProject.exception.*;
+import br.com.inatel.FranciscoJunior_GotProject.mapper.GotMapper;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.ContinentDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
@@ -141,6 +142,22 @@ public class GotServiceTest {
         characterPage = new PageImpl<>(characterList);
         familyList.add(family);
         familyPage = new PageImpl<>(familyList);
+    }
+
+    @Test
+    public void givenPopulateCharacterDb_shouldReturnCharacterList(){
+        when(gotAdapter.listCharacters()).thenReturn(GotMapper.toCharacterDtoList(characterList));
+
+        List<Character> characters = gotService.populateCharactersDb();
+
+        assertEquals(characters.get(0).getId(), 0);
+        assertEquals(characters.get(0).getFirstName(), "Francisco");
+        assertEquals(characters.get(0).getLastName(), "Junior");
+        assertEquals(characters.get(0).getFullName(), "Francisco Junior");
+        assertEquals(characters.get(0).getTitle(), "Tester");
+        assertEquals(characters.get(0).getFamily(), "House Stark");
+        assertEquals(characters.get(0).getImage(), "image.png");
+        assertEquals(characters.get(0).getImageUrl(), "image.com.br");
     }
 
     @Test
@@ -356,7 +373,7 @@ public class GotServiceTest {
     }
 
     @Test
-    public void givenDeadDto_whenIncludeNewDeadIsValidInformations_findDeadsPerFamilyshouldReturnListUpdated(){
+    public void givenDeadDto_whenIncludeNewDeadIsValidInformations_findDeadsPerFamilyShouldReturnListUpdated(){
         continentDtos.add(continentDto);
         when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
         when(gotAdapter.listContinents()).thenReturn(continentDtos);
