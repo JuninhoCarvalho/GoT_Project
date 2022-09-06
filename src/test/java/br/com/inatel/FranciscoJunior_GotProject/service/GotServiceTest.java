@@ -393,9 +393,4 @@ public class GotServiceTest {
         assertEquals(familyDtos.get(0).getName(), dead.getFamily());
         assertEquals(familyDtos.get(0).getDeads(), 1);
     }
-
 }
-
-
-
-
