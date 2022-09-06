@@ -1,12 +1,11 @@
 package br.com.inatel.FranciscoJunior_GotProject.service;
 
 import br.com.inatel.FranciscoJunior_GotProject.adapter.GotAdapter;
-import br.com.inatel.FranciscoJunior_GotProject.exception.CharacterAlreadyExistsException;
-import br.com.inatel.FranciscoJunior_GotProject.exception.CharacterNotFoundException;
-import br.com.inatel.FranciscoJunior_GotProject.exception.FamilyDoesntExistException;
+import br.com.inatel.FranciscoJunior_GotProject.exception.*;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.ContinentDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
+import br.com.inatel.FranciscoJunior_GotProject.model.dto.FamilyDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Character;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Client;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Dead;
@@ -55,13 +54,17 @@ public class GotServiceTest {
     private Dead dead;
     private DeadDto deadDto;
     private Family family;
+    private FamilyDto familyDto;
     private ContinentDto continentDto;
     private Page<Character> characterPage;
+    private Page<Family> familyPage;
     private List<Character> characterList = new ArrayList<>();
+    private List<Family> familyList = new ArrayList<>();
     private List<Dead> deads = new ArrayList<>();
     private List<ContinentDto> continentDtos = new ArrayList<>();
-    Optional<Character> optCharacter;
-    Optional<Family> optFamily;
+    private Optional<Character> optCharacter;
+    private Optional<Family> optFamily;
+    private Optional<Dead> optDead;
     Pageable page = PageRequest.of(0, 10);
 
     @InjectMocks
@@ -115,7 +118,13 @@ public class GotServiceTest {
         family = Family.builder()
                 .id(1)
                 .name("House Stark")
-                .deads(4)
+                .deads(0)
+                .build();
+
+        familyDto = FamilyDto.builder()
+                .id(1)
+                .name("House Stark")
+                .deads(0)
                 .build();
 
         continentDto = ContinentDto.builder()
@@ -127,8 +136,11 @@ public class GotServiceTest {
 
         optCharacter = Optional.of(character);
         optFamily = Optional.of(family);
+        optDead = Optional.of(dead);
         characterList.add(character);
         characterPage = new PageImpl<>(characterList);
+        familyList.add(family);
+        familyPage = new PageImpl<>(familyList);
     }
 
     @Test
@@ -138,6 +150,7 @@ public class GotServiceTest {
         Page<CharacterDto> allCharacters = gotService.findAllCharacters(page);
         List<CharacterDto> characterDtos = allCharacters.stream().toList();
 
+        assertEquals(allCharacters.getTotalElements(), 1);
         assertEquals(characterDtos.size(), 1);
         assertEquals(characterDtos.get(0).getId(), 1);
         assertEquals(characterDtos.get(0).getFirstName(), "Francisco");
@@ -259,7 +272,7 @@ public class GotServiceTest {
     }
 
     @Test
-    public void givenDeadDto_whenIncludeNewDeadAndInformationsIsValid_shouldReturnDeadDto(){
+    public void givenDeadDto_whenIncludeNewDeadAndIsValidInformations_shouldReturnDeadDto(){
         continentDtos.add(continentDto);
         when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
         when(gotAdapter.listContinents()).thenReturn(continentDtos);
@@ -278,13 +291,90 @@ public class GotServiceTest {
     @Test
     public void givenDeadDto_whenIncludeNewDeadAndCharacterDoesntExist_shouldReturnCharacterNotFoundException(){
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.empty());
+        deadDto.setName("Invalid");
 
         Throwable throwable = catchThrowable(() -> gotService.includeNewDead(deadDto));
 
         assertThat(throwable)
                 .isInstanceOf(CharacterNotFoundException.class)
-                .hasMessageContaining("Francisco Junior Not Found!");
+                .hasMessageContaining("Invalid Not Found!");
     }
+
+    @Test
+    public void givenDeadDto_whenIncludeNewDeadAndIsInvalidContinent_shouldReturnContinentNotFoundException(){
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        deadDto.setContinent("Invalid");
+
+        Throwable throwable = catchThrowable(() -> gotService.includeNewDead(deadDto));
+
+        assertThat(throwable)
+                .isInstanceOf(ContinentNotFoundException.class)
+                .hasMessageContaining("Invalid is not a valid continent");
+    }
+
+    @Test
+    public void givenDeadDto_whenIncludeNewDeadAndIsInvalidFamily_shouldReturnFamilyDoesntExistException(){
+        continentDtos.add(continentDto);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(gotAdapter.listContinents()).thenReturn(continentDtos);
+        deadDto.setFamily("Invalid");
+
+        Throwable throwable = catchThrowable(() -> gotService.includeNewDead(deadDto));
+
+        assertThat(throwable)
+                .isInstanceOf(FamilyDoesntExistException.class)
+                .hasMessageContaining("The 'Invalid' family doesn't exist in the Game of Thrones world!");
+    }
+
+    @Test
+    public void givenDeadDto_whenIncludeNewDeadAndCharacterAlreadyDead_shouldReturnCharacterAlreadyDeadException(){
+        continentDtos.add(continentDto);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(gotAdapter.listContinents()).thenReturn(continentDtos);
+        when(familyRepository.findByName(any(String.class))).thenReturn(optFamily);
+        when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(optDead);
+
+        Throwable throwable = catchThrowable(() -> gotService.includeNewDead(deadDto));
+
+        assertThat(throwable)
+                .isInstanceOf(CharacterAlreadyDeadException.class)
+                .hasMessageContaining("The character '%s' belonging to the family '%s' already died!",
+                        deadDto.getName(), deadDto.getFamily());
+    }
+
+    @Test
+    public void givenFindDeadsPerFamily_shouldReturnFamilyDtoPage(){
+        when(familyRepository.findAll(page)).thenReturn(familyPage);
+
+        Page<FamilyDto> allDeadsPerFamily = gotService.findDeadsPerFamily(page);
+        List<FamilyDto> familyDtos = allDeadsPerFamily.stream().toList();
+
+        assertEquals(allDeadsPerFamily.getTotalElements(), 1);
+        assertEquals(familyDtos.get(0).getId(), 1);
+        assertEquals(familyDtos.get(0).getName(), "House Stark");
+        assertEquals(familyDtos.get(0).getDeads(), 0);
+    }
+
+    @Test
+    public void givenDeadDto_whenIncludeNewDeadIsValidInformations_findDeadsPerFamilyshouldReturnListUpdated(){
+        continentDtos.add(continentDto);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(gotAdapter.listContinents()).thenReturn(continentDtos);
+        when(familyRepository.findByName(any(String.class))).thenReturn(optFamily);
+        when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(Optional.empty());
+        when(deadRepository.save(any(Dead.class))).thenReturn(dead);
+        when(familyRepository.findAll(page)).thenReturn(familyPage);
+
+        DeadDto deadReturn = gotService.includeNewDead(deadDto);
+        Page<FamilyDto> allDeadsPerFamily = gotService.findDeadsPerFamily(page);
+        List<FamilyDto> familyDtos = allDeadsPerFamily.stream().toList();
+
+        assertEquals(allDeadsPerFamily.getTotalElements(), 1);
+        assertEquals(familyDtos.get(0).getId(), 1);
+        assertEquals(familyDtos.get(0).getName(), "House Stark");
+        assertEquals(familyDtos.get(0).getDeads(), 1);
+    }
+
 }
 
 
