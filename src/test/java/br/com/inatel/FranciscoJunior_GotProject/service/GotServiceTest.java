@@ -55,17 +55,13 @@ public class GotServiceTest {
     private Dead dead;
     private DeadDto deadDto;
     private Family family;
-    private FamilyDto familyDto;
     private ContinentDto continentDto;
     private Page<Character> characterPage;
     private Page<Family> familyPage;
     private List<Character> characterList = new ArrayList<>();
     private List<Family> familyList = new ArrayList<>();
-    private List<Dead> deads = new ArrayList<>();
+    private final List<Dead> deadList = new ArrayList<>();
     private List<ContinentDto> continentDtos = new ArrayList<>();
-    private Optional<Character> optCharacter;
-    private Optional<Family> optFamily;
-    private Optional<Dead> optDead;
     Pageable page = PageRequest.of(0, 10);
 
     @InjectMocks
@@ -122,22 +118,11 @@ public class GotServiceTest {
                 .deads(0)
                 .build();
 
-        familyDto = FamilyDto.builder()
-                .id(1)
-                .name("House Stark")
-                .deads(0)
-                .build();
-
         continentDto = ContinentDto.builder()
                 .id(1)
                 .name("Westeros")
                 .build();
 
-        characterList = new ArrayList<>();
-
-        optCharacter = Optional.of(character);
-        optFamily = Optional.of(family);
-        optDead = Optional.of(dead);
         characterList.add(character);
         characterPage = new PageImpl<>(characterList);
         familyList.add(family);
@@ -150,14 +135,13 @@ public class GotServiceTest {
 
         List<Character> characters = gotService.populateCharactersDb();
 
-        assertEquals(characters.get(0).getId(), 0);
-        assertEquals(characters.get(0).getFirstName(), "Francisco");
-        assertEquals(characters.get(0).getLastName(), "Junior");
-        assertEquals(characters.get(0).getFullName(), "Francisco Junior");
-        assertEquals(characters.get(0).getTitle(), "Tester");
-        assertEquals(characters.get(0).getFamily(), "House Stark");
-        assertEquals(characters.get(0).getImage(), "image.png");
-        assertEquals(characters.get(0).getImageUrl(), "image.com.br");
+        assertEquals(characters.get(0).getFirstName(), character.getFirstName());
+        assertEquals(characters.get(0).getLastName(), character.getLastName());
+        assertEquals(characters.get(0).getFullName(), character.getFullName());
+        assertEquals(characters.get(0).getTitle(), character.getTitle());
+        assertEquals(characters.get(0).getFamily(), character.getFamily());
+        assertEquals(characters.get(0).getImage(), character.getImage());
+        assertEquals(characters.get(0).getImageUrl(), character.getImageUrl());
     }
 
     @Test
@@ -169,34 +153,34 @@ public class GotServiceTest {
 
         assertEquals(allCharacters.getTotalElements(), 1);
         assertEquals(characterDtos.size(), 1);
-        assertEquals(characterDtos.get(0).getId(), 1);
-        assertEquals(characterDtos.get(0).getFirstName(), "Francisco");
-        assertEquals(characterDtos.get(0).getLastName(), "Junior");
-        assertEquals(characterDtos.get(0).getFullName(), "Francisco Junior");
-        assertEquals(characterDtos.get(0).getTitle(), "Tester");
-        assertEquals(characterDtos.get(0).getFamily(), "House Stark");
-        assertEquals(characterDtos.get(0).getImage(), "image.png");
-        assertEquals(characterDtos.get(0).getImageUrl(), "image.com.br");
+        assertEquals(characterDtos.get(0).getId(), character.getId());
+        assertEquals(characterDtos.get(0).getFirstName(), character.getFirstName());
+        assertEquals(characterDtos.get(0).getLastName(), character.getLastName());
+        assertEquals(characterDtos.get(0).getFullName(), character.getFullName());
+        assertEquals(characterDtos.get(0).getTitle(), character.getTitle());
+        assertEquals(characterDtos.get(0).getFamily(), character.getFamily());
+        assertEquals(characterDtos.get(0).getImage(), character.getImage());
+        assertEquals(characterDtos.get(0).getImageUrl(), character.getImageUrl());
     }
 
     @Test
     public void givenFindCharacterByName_whenFindCharacterByValidName_shouldReturnCharacterDto() {
-        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
 
-        CharacterDto character = gotService.findCharacter("Francisco Junior");
+        CharacterDto chDto = gotService.findCharacter("Francisco Junior");
 
-        assertEquals(character.getId(), 1);
-        assertEquals(character.getFirstName(), "Francisco");
-        assertEquals(character.getLastName(), "Junior");
-        assertEquals(character.getFullName(), "Francisco Junior");
-        assertEquals(character.getTitle(), "Tester");
-        assertEquals(character.getFamily(), "House Stark");
-        assertEquals(character.getImage(), "image.png");
-        assertEquals(character.getImageUrl(), "image.com.br");
+        assertEquals(chDto.getId(), character.getId());
+        assertEquals(chDto.getFirstName(), character.getFirstName());
+        assertEquals(chDto.getLastName(), character.getLastName());
+        assertEquals(chDto.getFullName(), character.getFullName());
+        assertEquals(chDto.getTitle(), character.getTitle());
+        assertEquals(chDto.getFamily(), character.getFamily());
+        assertEquals(chDto.getImage(), character.getImage());
+        assertEquals(chDto.getImageUrl(), character.getImageUrl());
     }
 
     @Test
-    public void givenFindCharacterByName_whenFindCharacterByNonexistentName_shouldReturnCharacterNotFoundException() {
+    public void givenFindCharacterByName_whenFindCharacterByNonExistentName_shouldReturnCharacterNotFoundException() {
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.empty());
 
         Throwable throwable = catchThrowable(() -> gotService.findCharacter("Invalid"));
@@ -207,26 +191,26 @@ public class GotServiceTest {
     }
 
     @Test
-    public void givenCharacterDto_whenSaveCharacterAndInformationsIsValid_shouldReturnCharacterDto() {
+    public void givenCharacterDto_whenSaveCharacterAndDataIsValid_shouldReturnCharacterDto() {
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.empty());
-        when(familyRepository.findByName(any(String.class))).thenReturn(optFamily);
+        when(familyRepository.findByName(any(String.class))).thenReturn(Optional.of(family));
         when(characterRepository.save(any(Character.class))).thenReturn(character);
 
         CharacterDto chCreated = gotService.createCharacter(characterDto);
 
-        assertEquals(chCreated.getId(), 1);
-        assertEquals(chCreated.getFirstName(), "Francisco");
-        assertEquals(chCreated.getLastName(), "Junior");
-        assertEquals(chCreated.getFullName(), "Francisco Junior");
-        assertEquals(chCreated.getTitle(), "Tester");
-        assertEquals(chCreated.getFamily(), "House Stark");
-        assertEquals(chCreated.getImage(), "image.png");
-        assertEquals(chCreated.getImageUrl(), "image.com.br");
+        assertEquals(chCreated.getId(), character.getId());
+        assertEquals(chCreated.getFirstName(), character.getFirstName());
+        assertEquals(chCreated.getLastName(), character.getLastName());
+        assertEquals(chCreated.getFullName(), character.getFullName());
+        assertEquals(chCreated.getTitle(), character.getTitle());
+        assertEquals(chCreated.getFamily(), character.getFamily());
+        assertEquals(chCreated.getImage(), character.getImage());
+        assertEquals(chCreated.getImageUrl(), character.getImageUrl());
     }
 
     @Test
     public void givenCharacterDto_whenSaveCharacterAndCharacterAlreadyExists_shouldReturnCharacterAlreadyExistsException() {
-        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
 
         Throwable throwable = catchThrowable(() -> gotService.createCharacter(characterDto));
 
@@ -249,18 +233,18 @@ public class GotServiceTest {
 
     @Test
     public void givenDeleteCharacterByName_whenDeleteExistingCharacter_shouldReturnCharacterDto() {
-        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
 
         CharacterDto chDto = gotService.deleteCharacter("Francisco Junior");
 
-        assertEquals(chDto.getId(), 1);
-        assertEquals(chDto.getFirstName(), "Francisco");
-        assertEquals(chDto.getLastName(), "Junior");
-        assertEquals(chDto.getFullName(), "Francisco Junior");
-        assertEquals(chDto.getTitle(), "Tester");
-        assertEquals(chDto.getFamily(), "House Stark");
-        assertEquals(chDto.getImage(), "image.png");
-        assertEquals(chDto.getImageUrl(), "image.com.br");
+        assertEquals(chDto.getId(), character.getId());
+        assertEquals(chDto.getFirstName(), character.getFirstName());
+        assertEquals(chDto.getLastName(), character.getLastName());
+        assertEquals(chDto.getFullName(), character.getFullName());
+        assertEquals(chDto.getTitle(), character.getTitle());
+        assertEquals(chDto.getFamily(), character.getFamily());
+        assertEquals(chDto.getImage(), character.getImage());
+        assertEquals(chDto.getImageUrl(), character.getImageUrl());
     }
 
     @Test
@@ -275,25 +259,20 @@ public class GotServiceTest {
     }
 
     @Test
-    public void givenFindAllDeads_shouldReturnDeadDtoList(){
-        deads.add(dead);
-        when(deadRepository.findAll()).thenReturn(deads);
+    public void givenFindAllDeads_shouldReturnDeadDtoListEmpty(){
+        when(deadRepository.findAll()).thenReturn(deadList);
 
         List<DeadDto> deadDtos = gotService.findAllDeads();
 
-        assertEquals(deadDtos.size(), 1);
-        assertEquals(deadDtos.get(0).getId(), 1);
-        assertEquals(deadDtos.get(0).getName(), "Francisco Junior");
-        assertEquals(deadDtos.get(0).getFamily(), "House Stark");
-        assertEquals(deadDtos.get(0).getContinent(), "Westeros");
+        assertEquals(deadDtos.size(), 0);
     }
 
     @Test
-    public void givenDeadDto_whenIncludeNewDeadAndIsValidInformations_shouldReturnDeadDto(){
+    public void givenDeadDto_whenIncludeNewDeadAndDataIsValid_shouldReturnDeadDto(){
         continentDtos.add(continentDto);
-        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
         when(gotAdapter.listContinents()).thenReturn(continentDtos);
-        when(familyRepository.findByName(any(String.class))).thenReturn(optFamily);
+        when(familyRepository.findByName(any(String.class))).thenReturn(Optional.of(family));
         when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(Optional.empty());
         when(deadRepository.save(any(Dead.class))).thenReturn(dead);
 
@@ -314,25 +293,25 @@ public class GotServiceTest {
 
         assertThat(throwable)
                 .isInstanceOf(CharacterNotFoundException.class)
-                .hasMessageContaining("Invalid Not Found!");
+                .hasMessageContaining("%s Not Found!", deadDto.getName());
     }
 
     @Test
     public void givenDeadDto_whenIncludeNewDeadAndIsInvalidContinent_shouldReturnContinentNotFoundException(){
-        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
         deadDto.setContinent("Invalid");
 
         Throwable throwable = catchThrowable(() -> gotService.includeNewDead(deadDto));
 
         assertThat(throwable)
                 .isInstanceOf(ContinentNotFoundException.class)
-                .hasMessageContaining("Invalid is not a valid continent");
+                .hasMessageContaining("%s is not a valid continent!", deadDto.getContinent());
     }
 
     @Test
     public void givenDeadDto_whenIncludeNewDeadAndIsInvalidFamily_shouldReturnFamilyDoesntExistException(){
         continentDtos.add(continentDto);
-        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
         when(gotAdapter.listContinents()).thenReturn(continentDtos);
         deadDto.setFamily("Invalid");
 
@@ -340,16 +319,17 @@ public class GotServiceTest {
 
         assertThat(throwable)
                 .isInstanceOf(FamilyDoesntExistException.class)
-                .hasMessageContaining("The 'Invalid' family doesn't exist in the Game of Thrones world!");
+                .hasMessageContaining("The '%s' family doesn't exist in the Game of Thrones world!",
+                        deadDto.getFamily());
     }
 
     @Test
     public void givenDeadDto_whenIncludeNewDeadAndCharacterAlreadyDead_shouldReturnCharacterAlreadyDeadException(){
         continentDtos.add(continentDto);
-        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
         when(gotAdapter.listContinents()).thenReturn(continentDtos);
-        when(familyRepository.findByName(any(String.class))).thenReturn(optFamily);
-        when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(optDead);
+        when(familyRepository.findByName(any(String.class))).thenReturn(Optional.of(family));
+        when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(Optional.of(dead));
 
         Throwable throwable = catchThrowable(() -> gotService.includeNewDead(deadDto));
 
@@ -357,6 +337,28 @@ public class GotServiceTest {
                 .isInstanceOf(CharacterAlreadyDeadException.class)
                 .hasMessageContaining("The character '%s' belonging to the family '%s' already died!",
                         deadDto.getName(), deadDto.getFamily());
+    }
+
+    @Test
+    public void givenFindAllDeads_whenIncludeNewDeadIsValidInformations_shouldReturnDeadDtoList(){
+        continentDtos.add(continentDto);
+        deadList.add(dead);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
+        when(gotAdapter.listContinents()).thenReturn(continentDtos);
+        when(familyRepository.findByName(any(String.class))).thenReturn(Optional.of(family));
+        when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(Optional.empty());
+        when(deadRepository.save(any(Dead.class))).thenReturn(dead);
+        when(deadRepository.findAll()).thenReturn(deadList);
+
+        gotService.includeNewDead(deadDto);
+
+        List<DeadDto> deadDtos = gotService.findAllDeads();
+
+        assertEquals(deadDtos.size(), 1);
+        assertEquals(deadDtos.get(0).getId(), dead.getId());
+        assertEquals(deadDtos.get(0).getName(), dead.getName());
+        assertEquals(deadDtos.get(0).getFamily(), dead.getFamily());
+        assertEquals(deadDtos.get(0).getContinent(), dead.getContinent());
     }
 
     @Test
@@ -368,27 +370,27 @@ public class GotServiceTest {
 
         assertEquals(allDeadsPerFamily.getTotalElements(), 1);
         assertEquals(familyDtos.get(0).getId(), 1);
-        assertEquals(familyDtos.get(0).getName(), "House Stark");
+        assertEquals(familyDtos.get(0).getName(), family.getName());
         assertEquals(familyDtos.get(0).getDeads(), 0);
     }
 
     @Test
     public void givenDeadDto_whenIncludeNewDeadIsValidInformations_findDeadsPerFamilyShouldReturnListUpdated(){
         continentDtos.add(continentDto);
-        when(characterRepository.findByFullName(any(String.class))).thenReturn(optCharacter);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
         when(gotAdapter.listContinents()).thenReturn(continentDtos);
-        when(familyRepository.findByName(any(String.class))).thenReturn(optFamily);
+        when(familyRepository.findByName(any(String.class))).thenReturn(Optional.of(family));
         when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(Optional.empty());
         when(deadRepository.save(any(Dead.class))).thenReturn(dead);
         when(familyRepository.findAll(page)).thenReturn(familyPage);
 
-        DeadDto deadReturn = gotService.includeNewDead(deadDto);
+        gotService.includeNewDead(deadDto);
         Page<FamilyDto> allDeadsPerFamily = gotService.findDeadsPerFamily(page);
         List<FamilyDto> familyDtos = allDeadsPerFamily.stream().toList();
 
         assertEquals(allDeadsPerFamily.getTotalElements(), 1);
         assertEquals(familyDtos.get(0).getId(), 1);
-        assertEquals(familyDtos.get(0).getName(), "House Stark");
+        assertEquals(familyDtos.get(0).getName(), dead.getFamily());
         assertEquals(familyDtos.get(0).getDeads(), 1);
     }
 
