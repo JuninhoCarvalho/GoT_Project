@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Deads")
+@RequestMapping("/deads")
 public class DeadController {
 
     GotService gotService;
@@ -30,7 +30,7 @@ public class DeadController {
         return gotService.findAllDeads();
     }
 
-    @GetMapping("/Family")
+    @GetMapping("/family")
     @ResponseStatus(HttpStatus.OK)
     public List<FamilyDto> listDeadsPerFamily(){
         return gotService.findDeadsPerFamily();

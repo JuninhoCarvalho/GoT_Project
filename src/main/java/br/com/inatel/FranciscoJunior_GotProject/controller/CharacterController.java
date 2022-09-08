@@ -14,7 +14,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Characters")
+@RequestMapping("/characters")
 public class CharacterController {
 
     GotService gotService;
@@ -42,9 +42,10 @@ public class CharacterController {
         return gotService.createCharacter(characterDto);
     }
 
-    @DeleteMapping("/Delete/{fullName}")
+    @DeleteMapping("/delete/{fullName}")
     @ResponseStatus(HttpStatus.OK)
-    public CharacterDto deleteCharacter(@PathVariable String fullName){
-        return gotService.deleteCharacter(fullName);
+    public String deleteCharacter(@PathVariable String fullName){
+        gotService.deleteCharacter(fullName);
+        return String.format("%s was successfully deleted!", fullName);
     }
 }
