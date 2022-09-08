@@ -61,10 +61,10 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(ExternalApiConnectionException.class)
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    @ResponseStatus(value = HttpStatus.SERVICE_UNAVAILABLE)
     public Error externalApiConnectionException(ExternalApiConnectionException externalApiConnectionException){
         return Error.builder()
-                .httpStatusCode(HttpStatus.FORBIDDEN)
+                .httpStatusCode(HttpStatus.SERVICE_UNAVAILABLE)
                 .message(externalApiConnectionException.getMessage())
                 .build();
     }

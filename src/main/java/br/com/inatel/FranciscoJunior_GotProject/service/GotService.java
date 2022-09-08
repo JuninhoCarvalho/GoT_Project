@@ -79,7 +79,6 @@ public class GotService {
         }
 
         return GotMapper.toCharacterDto(characterRepository.save(GotMapper.toCharacter(characterDto)));
-
     }
 
     @CacheEvict(value = "charactersList", allEntries = true)
@@ -115,7 +114,7 @@ public class GotService {
         else if(!isValidFamily(deadDto.getFamily())) {
             throw new FamilyDoesntExistException(deadDto.getFamily());
         }
-        else if(theCharactarAlreadyDead(deadDto.getName(), deadDto.getFamily())){
+        else if(theCharacterAlreadyDead(deadDto.getName(), deadDto.getFamily())){
             throw new CharacterAlreadyDeadException(deadDto.getName(), deadDto.getFamily());
         }
 
@@ -146,7 +145,7 @@ public class GotService {
         return familyRepository.findByName(name).isPresent();
     }
 
-    private boolean theCharactarAlreadyDead(String name, String family) {
+    private boolean theCharacterAlreadyDead(String name, String family) {
         return deadRepository.findByNameAndFamily(name, family).isPresent();
     }
 }
