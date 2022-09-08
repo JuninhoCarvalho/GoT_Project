@@ -24,12 +24,8 @@ public class GotMapper {
         return characters.stream().map(GotMapper::toCharacterDto).collect(Collectors.toList());
     }
 
-    public static Page<CharacterDto> toCharacterDtoPage(Page<Character> characters){
-        return characters.map(GotMapper::toCharacterDto);
-    }
-
-    public static Page<FamilyDto> toFamilyDtoPage(Page<Family> families) {
-        return families.map(GotMapper::toFamilyDto);
+    public static List<FamilyDto> toFamilyDtoList(List<Family> families) {
+        return families.stream().map(GotMapper::toFamilyDto).collect(Collectors.toList());
     }
 
     public static List<Continent> toContinentList(List<ContinentDto> continentsDto){

@@ -32,9 +32,8 @@ public class DeadController {
 
     @GetMapping("/Family")
     @ResponseStatus(HttpStatus.OK)
-    public Page<FamilyDto> listDeadsPerFamily(@PageableDefault(sort = "name", direction = Sort.Direction.ASC,
-            page = 0, size = 20) Pageable page){
-        return gotService.findDeadsPerFamily(page);
+    public List<FamilyDto> listDeadsPerFamily(){
+        return gotService.findDeadsPerFamily();
     }
 
     @PostMapping

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/Characters")
@@ -25,8 +26,8 @@ public class CharacterController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<CharacterDto> listAllCharacters(@PageableDefault(page = 0, size = 25) Pageable page){
-        return gotService.findAllCharacters(page);
+    public List<CharacterDto> listAllCharacters(){
+        return gotService.findAllCharacters();
     }
 
     @GetMapping("/{name}")
@@ -43,7 +44,7 @@ public class CharacterController {
 
     @DeleteMapping("/Delete/{fullName}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<CharacterDto> deleteCharacter(@PathVariable String fullName){
-        return ResponseEntity.ok(gotService.deleteCharacter(fullName));
+    public CharacterDto deleteCharacter(@PathVariable String fullName){
+        return gotService.deleteCharacter(fullName);
     }
 }

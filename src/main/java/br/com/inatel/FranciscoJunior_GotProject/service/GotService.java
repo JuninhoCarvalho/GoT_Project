@@ -52,8 +52,8 @@ public class GotService {
         }
     }
     @Cacheable(value = "charactersList")
-    public Page<CharacterDto> findAllCharacters(Pageable page){
-        return GotMapper.toCharacterDtoPage(characterRepository.findAll(page));
+    public List<CharacterDto> findAllCharacters(){
+        return GotMapper.toCharacterDtoList(characterRepository.findAll());
     }
 
     public CharacterDto findCharacter(String name) {
@@ -123,8 +123,8 @@ public class GotService {
     }
 
     @Cacheable(value = "deadsPerFamilyList")
-    public Page<FamilyDto> findDeadsPerFamily(Pageable page) {
-        return GotMapper.toFamilyDtoPage(familyRepository.findAll(page));
+    public List<FamilyDto> findDeadsPerFamily() {
+        return GotMapper.toFamilyDtoList(familyRepository.findAll());
     }
 
     @CacheEvict(value = "deadsPerFamilyList", allEntries = true)
