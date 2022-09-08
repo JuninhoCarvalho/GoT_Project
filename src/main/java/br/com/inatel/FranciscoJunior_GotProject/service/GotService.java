@@ -15,15 +15,12 @@ import br.com.inatel.FranciscoJunior_GotProject.repository.FamilyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @Transactional
@@ -93,7 +90,7 @@ public class GotService {
         throw new CharacterNotFoundException(fullName);
     }
 
-    public void insertFamilys(Set<String> familyNames) {
+    public void insertFamily(List<String> familyNames) {
         familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
     }
 
