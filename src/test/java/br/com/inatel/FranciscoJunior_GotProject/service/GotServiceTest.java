@@ -53,13 +53,10 @@ public class GotServiceTest {
     private DeadDto deadDto;
     private Family family;
     private ContinentDto continentDto;
-    private Page<Character> characterPage;
-    private Page<Family> familyPage;
     private List<Character> characterList = new ArrayList<>();
     private List<Family> familyList = new ArrayList<>();
     private final List<Dead> deadList = new ArrayList<>();
     private List<ContinentDto> continentDtos = new ArrayList<>();
-    Pageable page = PageRequest.of(0, 10);
 
     @InjectMocks
     private GotService gotService = new GotService();
@@ -114,9 +111,7 @@ public class GotServiceTest {
                 .build();
 
         characterList.add(character);
-        characterPage = new PageImpl<>(characterList);
         familyList.add(family);
-        familyPage = new PageImpl<>(familyList);
     }
 
     @Test
@@ -136,13 +131,11 @@ public class GotServiceTest {
 
     @Test
     public void givenFindAllCharacters_shouldReturnCharactersDtoPage() {
-        when(characterRepository.findAll(page)).thenReturn(characterPage);
+        when(characterRepository.findAll()).thenReturn(characterList);
 
-        Page<CharacterDto> allCharacters = gotService.findAllCharacters(page);
-        List<CharacterDto> characterDtos = allCharacters.stream().toList();
+        List<CharacterDto> characterDtos = gotService.findAllCharacters();
 
-        assertEquals(allCharacters.getTotalElements(), 1);
-        assertEquals(characterDtos.size(), 1);
+        assertEquals(1, characterDtos.size());
         assertEquals(characterDtos.get(0).getId(), character.getId());
         assertEquals(characterDtos.get(0).getFirstName(), character.getFirstName());
         assertEquals(characterDtos.get(0).getLastName(), character.getLastName());
@@ -353,12 +346,10 @@ public class GotServiceTest {
 
     @Test
     public void givenFindDeadsPerFamily_shouldReturnFamilyDtoPage(){
-        when(familyRepository.findAll(page)).thenReturn(familyPage);
+        when(familyRepository.findAll()).thenReturn(familyList);
 
-        Page<FamilyDto> allDeadsPerFamily = gotService.findDeadsPerFamily(page);
-        List<FamilyDto> familyDtos = allDeadsPerFamily.stream().toList();
+        List<FamilyDto> familyDtos = gotService.findDeadsPerFamily();
 
-        assertEquals(allDeadsPerFamily.getTotalElements(), 1);
         assertEquals(familyDtos.get(0).getId(), 1);
         assertEquals(familyDtos.get(0).getName(), family.getName());
         assertEquals(familyDtos.get(0).getDeads(), 0);
@@ -372,13 +363,12 @@ public class GotServiceTest {
         when(familyRepository.findByName(any(String.class))).thenReturn(Optional.of(family));
         when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(Optional.empty());
         when(deadRepository.save(any(Dead.class))).thenReturn(dead);
-        when(familyRepository.findAll(page)).thenReturn(familyPage);
+        when(familyRepository.findAll()).thenReturn(familyList);
 
         gotService.includeNewDead(deadDto);
-        Page<FamilyDto> allDeadsPerFamily = gotService.findDeadsPerFamily(page);
-        List<FamilyDto> familyDtos = allDeadsPerFamily.stream().toList();
 
-        assertEquals(allDeadsPerFamily.getTotalElements(), 1);
+        List<FamilyDto> familyDtos = gotService.findDeadsPerFamily();
+
         assertEquals(familyDtos.get(0).getId(), 1);
         assertEquals(familyDtos.get(0).getName(), dead.getFamily());
         assertEquals(familyDtos.get(0).getDeads(), 1);
