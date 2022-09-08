@@ -25,7 +25,4 @@ public class Character {
     private String family;
     private String image;
     private String imageUrl;
-
-    @ManyToOne
-    private Client client;
 }

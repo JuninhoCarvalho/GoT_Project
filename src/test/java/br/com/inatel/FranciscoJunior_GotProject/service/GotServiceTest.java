@@ -8,7 +8,6 @@ import br.com.inatel.FranciscoJunior_GotProject.model.dto.ContinentDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.FamilyDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Character;
-import br.com.inatel.FranciscoJunior_GotProject.model.entity.Client;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Dead;
 import br.com.inatel.FranciscoJunior_GotProject.model.entity.Family;
 import br.com.inatel.FranciscoJunior_GotProject.repository.CharacterRepository;
@@ -48,8 +47,6 @@ public class GotServiceTest {
     private FamilyRepository familyRepository;
     @Mock
     private DeadRepository deadRepository;
-
-    private Client client;
     private Character character;
     private CharacterDto characterDto;
     private Dead dead;
@@ -69,12 +66,6 @@ public class GotServiceTest {
 
     @Before
     public void init() {
-        client = Client.builder()
-                .id(1L)
-                .name("Junior")
-                .email("junior@inatel.br")
-                .build();
-
         character = Character.builder()
                 .id(1)
                 .firstName("Francisco")
@@ -84,7 +75,6 @@ public class GotServiceTest {
                 .family("House Stark")
                 .image("image.png")
                 .imageUrl("image.com.br")
-                .client(client)
                 .build();
 
         characterDto = CharacterDto.builder()
