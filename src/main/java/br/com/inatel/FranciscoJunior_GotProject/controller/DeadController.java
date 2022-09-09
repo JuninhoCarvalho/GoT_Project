@@ -11,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -38,7 +39,7 @@ public class DeadController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DeadDto includeNewDead(@RequestBody DeadDto deadDto) {
+    public DeadDto includeNewDead(@RequestBody @Valid DeadDto deadDto) {
         return gotService.includeNewDead(deadDto);
     }
 }

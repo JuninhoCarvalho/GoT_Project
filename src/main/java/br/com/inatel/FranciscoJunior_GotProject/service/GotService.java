@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,11 +132,17 @@ public class GotService {
         familyRepository.save(family);
     }
 
-    @Cacheable(value = "continentsApi")
     public Boolean isValidContinent(String continent){
-        List<ContinentDto> continentsDto = gotAdapter.listContinents();
+        List<String> cNames = new ArrayList<>();
 
-        return continentsDto.stream().anyMatch(c -> c.getName().equals(continent));
+        loadContinents().forEach(c -> cNames.add(c.getName()));
+
+        return cNames.stream().anyMatch(c -> c.equals(continent));
+    }
+
+    @Cacheable(value = "continentsApi")
+    public List<ContinentDto> loadContinents(){
+        return gotAdapter.listContinents();
     }
 
     private Boolean isValidFamily(String name){
