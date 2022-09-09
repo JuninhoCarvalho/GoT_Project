@@ -7,9 +7,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class ExecuteInstructionsListener implements ApplicationListener<ApplicationReadyEvent> {
@@ -28,6 +26,6 @@ public class ExecuteInstructionsListener implements ApplicationListener<Applicat
         Set<String> familyNames = new HashSet<>();
         characters.forEach(c -> familyNames.add(c.getFamily()));
 
-        gotService.insertFamilys(familyNames);
+        gotService.insertFamily(familyNames);
     }
 }

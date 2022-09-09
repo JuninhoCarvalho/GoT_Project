@@ -11,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -32,13 +33,14 @@ public class DeadController {
 
     @GetMapping("/family")
     @ResponseStatus(HttpStatus.OK)
-    public List<FamilyDto> listDeadsPerFamily(){
-        return gotService.findDeadsPerFamily();
+    public Page<FamilyDto> listDeadsPerFamily(@PageableDefault(sort = "name", direction = Sort.Direction.ASC,
+            page = 0, size = 20) Pageable page){
+        return gotService.findDeadsPerFamily(page);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DeadDto includeNewDead(@RequestBody DeadDto deadDto) {
+    public DeadDto includeNewDead(@RequestBody @Valid DeadDto deadDto) {
         return gotService.includeNewDead(deadDto);
     }
 }

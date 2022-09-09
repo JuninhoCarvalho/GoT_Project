@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -42,18 +43,14 @@ public class GotService {
     DeadRepository deadRepository;
 
     public List<Character> populateCharactersDb(){
-        try {
-            List<Character> characters = GotMapper.toCharacterList(gotAdapter.listCharacters());
-            characterRepository.saveAll(characters);
+        List<Character> characters = GotMapper.toCharacterList(gotAdapter.listCharacters());
+        characterRepository.saveAll(characters);
 
-            return characters;
-        }catch(WebClientException webClientException){
-            throw new ExternalApiConnectionException(webClientException);
-        }
+        return characters;
     }
     @Cacheable(value = "charactersList")
-    public List<CharacterDto> findAllCharacters(){
-        return GotMapper.toCharacterDtoList(characterRepository.findAll());
+    public Page<CharacterDto> findAllCharacters(Pageable page){
+        return GotMapper.toCharacterDtoPage(characterRepository.findAll(page));
     }
 
     public CharacterDto findCharacter(String name) {
@@ -93,7 +90,7 @@ public class GotService {
         throw new CharacterNotFoundException(fullName);
     }
 
-    public void insertFamilys(Set<String> familyNames) {
+    public void insertFamily(Set<String> familyNames) {
         familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
     }
 
@@ -122,23 +119,27 @@ public class GotService {
         return GotMapper.toDeadDto(deadRepository.save(GotMapper.toDead(deadDto)));
     }
 
-    @Cacheable(value = "deadsPerFamilyList")
-    public List<FamilyDto> findDeadsPerFamily() {
-        return GotMapper.toFamilyDtoList(familyRepository.findAll());
+    public Page<FamilyDto> findDeadsPerFamily(Pageable page) {
+        return GotMapper.toFamilyDtoPage(familyRepository.findAll(page));
     }
 
-    @CacheEvict(value = "deadsPerFamilyList", allEntries = true)
     public void deadPerFamilyCalculation(DeadDto dead) {
         Family family = familyRepository.findByName(dead.getFamily()).get();
         family.setDeads(family.getDeads() + 1);
         familyRepository.save(family);
     }
 
-    @Cacheable(value = "continentsApi")
     public Boolean isValidContinent(String continent){
-        List<ContinentDto> continentsDto = gotAdapter.listContinents();
+        List<String> cNames = new ArrayList<>();
 
-        return continentsDto.stream().anyMatch(c -> c.getName().equals(continent));
+        loadContinents().forEach(c -> cNames.add(c.getName()));
+
+        return cNames.stream().anyMatch(c -> c.equals(continent));
+    }
+
+    @Cacheable(value = "continentsApi")
+    public List<ContinentDto> loadContinents(){
+        return gotAdapter.listContinents();
     }
 
     private Boolean isValidFamily(String name){

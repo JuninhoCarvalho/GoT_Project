@@ -4,13 +4,16 @@ import br.com.inatel.FranciscoJunior_GotProject.exception.ExternalApiConnectionE
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.ContinentDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GotAdapter {
@@ -26,46 +29,34 @@ public class GotAdapter {
 
     public List<CharacterDto> listCharacters(){
 
-        List<CharacterDto> characterDtos = new ArrayList<>();
-        try {
-            Flux<CharacterDto> flux = WebClient.create(URL_MANAGER)
-                    .get()
-                    .uri("/Characters")
-                    .header("X-RapidAPI-Key", key)
-                    .header("X-RapidAPI-Host", host)
-                    .retrieve()
-                    .bodyToFlux(CharacterDto.class);
+        List<CharacterDto> characterDtos;
+        Mono<List<CharacterDto>> listMono = WebClient.create(URL_MANAGER)
+                .get()
+                .uri("/Characters")
+                .header("X-RapidAPI-Key", key)
+                .header("X-RapidAPI-Host", host)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<CharacterDto>>() {});
 
-            flux.subscribe(f -> characterDtos.add(f));
-            flux.blockLast();
+        characterDtos = listMono.block();
 
-            return characterDtos;
-        }
-        catch (WebClientException webClientException){
-            throw new ExternalApiConnectionException(webClientException);
-        }
+        return characterDtos.stream().collect(Collectors.toList());
     }
 
     public List<ContinentDto> listContinents() {
 
-        List<ContinentDto> continentDtos = new ArrayList<>();
+        List<ContinentDto> continentDtos;
 
-        try {
-            Flux<ContinentDto> flux = WebClient.create(URL_MANAGER)
-                    .get()
-                    .uri("/Continents")
-                    .header("X-RapidAPI-Key", key)
-                    .header("X-RapidAPI-Host", host)
-                    .retrieve()
-                    .bodyToFlux(ContinentDto.class);
+        Mono<List<ContinentDto>> listMono = WebClient.create(URL_MANAGER)
+                .get()
+                .uri("/Continents")
+                .header("X-RapidAPI-Key", key)
+                .header("X-RapidAPI-Host", host)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<ContinentDto>>() {});
 
-            flux.subscribe(f -> continentDtos.add(f));
-            flux.blockLast();
+        continentDtos = listMono.block();
 
-            return continentDtos;
-        }
-        catch (WebClientException webClientException){
-            throw new ExternalApiConnectionException(webClientException);
-        }
+        return continentDtos.stream().collect(Collectors.toList());
     }
 }

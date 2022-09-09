@@ -3,6 +3,8 @@ package br.com.inatel.FranciscoJunior_GotProject.handler;
 import br.com.inatel.FranciscoJunior_GotProject.exception.*;
 import br.com.inatel.FranciscoJunior_GotProject.model.rest.Error;
 import org.hibernate.exception.JDBCConnectionException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,6 +12,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.reactive.function.client.WebClientException;
+
+import java.util.Objects;
 
 @ControllerAdvice
 @ResponseBody
@@ -77,21 +82,49 @@ public class ControllerExceptionHandler {
                 .message(connectionJDBCFailedException.getMessage())
                 .build();
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public Error fieldNullException(MethodArgumentNotValidException fieldNullException){
         return Error.builder()
                 .httpStatusCode(HttpStatus.BAD_REQUEST)
-                .message(String.valueOf(fieldNullException.getFieldError().getField() +  " field is missing!"))
+                .message(Objects.requireNonNull(fieldNullException.getFieldError()).getField() +  " field is missing!")
                 .build();
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public Error fieldNullException(HttpMessageNotReadableException jsonError){
+    public Error jsonErrorException(HttpMessageNotReadableException jsonError){
         return Error.builder()
                 .httpStatusCode(HttpStatus.BAD_REQUEST)
                 .message(jsonError.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public Error pageableFieldSortException(PropertyReferenceException property){
+        return Error.builder()
+                .httpStatusCode(HttpStatus.BAD_REQUEST)
+                .message(property.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(WebClientException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public Error externalApiConnectionException(WebClientException web){
+        return Error.builder()
+                .httpStatusCode(HttpStatus.BAD_REQUEST)
+                .message(web.getMessage())
+                .build();
+    }
+
+    @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
+    @ResponseStatus(value = HttpStatus.CONFLICT)
+    public Error nonUniqueResultException(IncorrectResultSizeDataAccessException web){
+        return Error.builder()
+                .httpStatusCode(HttpStatus.CONFLICT)
+                .message(web.getMessage())
                 .build();
     }
 }
