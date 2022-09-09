@@ -1,39 +1,39 @@
 package br.com.inatel.FranciscoJunior_GotProject.controller;
 
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
-import br.com.inatel.FranciscoJunior_GotProject.model.dto.FamilyDto;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @ActiveProfiles("test")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class DeadControllerTest {
 
     @Autowired
     private WebTestClient webTestClient;
 
     @Test
-    public void t1_givenGetDeadsRequest_shouldReturnDeadDtoListAnd200Code(){
+    @Order(1)
+    public void givenGetDeadsRequest_shouldReturnEmptyDeadDtoListAnd200Code(){
         List<DeadDto> deadDtos = webTestClient.get()
                 .uri("/deads")
                 .exchange()
+                .expectStatus().isOk()
                 .expectBodyList(DeadDto.class)
                 .returnResult()
                 .getResponseBody();
@@ -42,27 +42,160 @@ public class DeadControllerTest {
     }
 
     @Test
-    public void t2_givenGetDeadsPerFamily_shouldReturnFamilyDtoListAnd200Code(){
-        List<FamilyDto> familyDtos = webTestClient.get()
+    @Order(2)
+    public void givenGetDeadsPerFamily_shouldReturnFamilyDtoPageAnd200Code() throws JSONException {
+        String familyDtos = webTestClient.get()
                 .uri("/deads/family")
                 .exchange()
-                .expectBodyList(FamilyDto.class)
+                .expectStatus().isOk()
+                .expectBody(String.class)
                 .returnResult()
                 .getResponseBody();
 
-        assertEquals(35, familyDtos.size());
-        familyDtos.forEach(f -> assertTrue(f.getDeads().equals(0)));
-        assertEquals("Baratheon", familyDtos.get(1).getName());
-        assertEquals("Worm", familyDtos.get(34).getName());
+        JSONObject jsonObject = new JSONObject(familyDtos);
+        JSONArray jsonArray = jsonObject.getJSONArray("content");
+        JSONObject sortObject = jsonObject.getJSONObject("sort");
+        JSONObject jsonObject1 = jsonArray.getJSONObject(1);
+
+        assertEquals(35, jsonObject.get("totalElements"));
+        assertEquals(2, jsonObject.get("totalPages"));
+        assertEquals(20, jsonObject.get("size"));
+        assertTrue(sortObject.get("sorted").equals(true));
+
+        assertEquals(12, jsonObject1.get("id"));
+        assertEquals("Baratheon", jsonObject1.get("name"));
+        assertEquals(0, jsonObject1.get("deads"));
     }
 
     @Test
-    public void t3_givenACorrectPostRequest_whenCallPostMethod_shouldReturnThatNewDeadDtoAnd201Code(){
+    @Order(3)
+    public void givenGetDeadsPerFamily_whenGetCharactersSettingPageable_shouldReturnFamilyDtoPageAnd200Code() throws JSONException {
+        String familyDtos = webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/deads/family")
+                        .queryParam("page", 1)
+                        .queryParam("size", 10)
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+
+        JSONObject jsonObject = new JSONObject(familyDtos);
+        JSONArray jsonArray = jsonObject.getJSONArray("content");
+        JSONObject sortObject = jsonObject.getJSONObject("sort");
+        JSONObject jsonObject1 = jsonArray.getJSONObject(0);
+
+        assertEquals(35, jsonObject.get("totalElements"));
+        assertEquals(4, jsonObject.get("totalPages"));
+        assertEquals(10, jsonObject.get("size"));
+        assertEquals(1, jsonObject.get("number"));
+        assertTrue(sortObject.get("sorted").equals(true));
+
+        assertEquals(9, jsonObject1.get("id"));
+        assertEquals("House Lanister", jsonObject1.get("name"));
+        assertEquals(0, jsonObject1.get("deads"));
+    }
+
+    @Test
+    @Order(4)
+    public void givenGetDeadsPerFamily_whenGetCharactersSettingJustPage_shouldReturnFamilyDtoPageAnd200Code() throws JSONException {
+        String familyDtos = webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/deads/family")
+                        .queryParam("page", 1)
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+
+        JSONObject jsonObject = new JSONObject(familyDtos);
+        JSONArray jsonArray = jsonObject.getJSONArray("content");
+        JSONObject sortObject = jsonObject.getJSONObject("sort");
+        JSONObject jsonObject1 = jsonArray.getJSONObject(0);
+
+        assertEquals(35, jsonObject.get("totalElements"));
+        assertEquals(2, jsonObject.get("totalPages"));
+        assertEquals(20, jsonObject.get("size"));
+        assertEquals(1, jsonObject.get("number"));
+        assertTrue(sortObject.get("sorted").equals(true));
+
+        assertEquals(32, jsonObject1.get("id"));
+        assertEquals("Mormont", jsonObject1.get("name"));
+        assertEquals(0, jsonObject1.get("deads"));
+    }
+
+    @Test
+    @Order(5)
+    public void givenGetDeadsPerFamily_whenGetCharactersSettingJustSize_shouldReturnFamilyDtoPageAnd200Code() throws JSONException {
+        String familyDtos = webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/deads/family")
+                        .queryParam("size", 10)
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+
+        JSONObject jsonObject = new JSONObject(familyDtos);
+        JSONArray jsonArray = jsonObject.getJSONArray("content");
+        JSONObject sortObject = jsonObject.getJSONObject("sort");
+        JSONObject jsonObject1 = jsonArray.getJSONObject(1);
+
+        assertEquals(35, jsonObject.get("totalElements"));
+        assertEquals(4, jsonObject.get("totalPages"));
+        assertEquals(10, jsonObject.get("size"));
+        assertEquals(0, jsonObject.get("number"));
+        assertTrue(sortObject.get("sorted").equals(true));
+
+        assertEquals(12, jsonObject1.get("id"));
+        assertEquals("Baratheon", jsonObject1.get("name"));
+        assertEquals(0, jsonObject1.get("deads"));
+    }
+
+    @Test
+    @Order(6)
+    public void givenGetDeadsPerFamily_whenGetCharactersSettingPageOutOfTotal_shouldReturnFamilyDtoPageAnd200Code() throws JSONException {
+        String familyDtos = webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/deads/family")
+                        .queryParam("page", 2)
+                        .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+
+        JSONObject jsonObject = new JSONObject(familyDtos);
+        JSONArray jsonArray = jsonObject.getJSONArray("content");
+        JSONObject sortObject = jsonObject.getJSONObject("sort");
+        JSONObject pageableObject = jsonObject.getJSONObject("pageable");
+
+        assertEquals(0, jsonArray.length());
+
+        assertEquals(40, pageableObject.get("offset"));
+
+        assertEquals(35, jsonObject.get("totalElements"));
+        assertEquals(2, jsonObject.get("totalPages"));
+        assertEquals(20, jsonObject.get("size"));
+        assertEquals(2, jsonObject.get("number"));
+        assertTrue(sortObject.get("sorted").equals(true));
+    }
+
+    @Test
+    @Order(7)
+    public void givenACorrectPostRequest_whenCallPostMethod_shouldReturnThatNewDeadDtoAnd201Code(){
         final DeadDto newDeadDto = DeadDto.builder()
                 .id(1)
                 .name("Daenerys Targaryen")
                 .family("House Targaryen")
-                .continent("Ulthos")
+                .continent("Westeros")
                 .build();
 
 
@@ -82,19 +215,47 @@ public class DeadControllerTest {
     }
 
     @Test
-    public void t4_givenGetDeadsRequest_shouldReturnDeadDtoListAnd200Code(){
+    @Order(8)
+    public void givenGetDeadsRequest_shouldReturnDeadDtoListAnd200Code(){
         List<DeadDto> deadDtos = webTestClient.get()
                 .uri("/deads")
                 .exchange()
+                .expectStatus().isOk()
                 .expectBodyList(DeadDto.class)
                 .returnResult()
                 .getResponseBody();
 
         assertEquals(1, deadDtos.size());
+
+        assertEquals("Daenerys Targaryen", deadDtos.get(0).getName());
+        assertEquals("House Targaryen", deadDtos.get(0).getFamily());
+        assertEquals("Westeros", deadDtos.get(0).getContinent());
     }
 
     @Test
-    public void t5_givenAIncorrectPostRequest_whenCallPostMethodByInvalidCharacter_shouldReturnCharacterNotFoundExceptionAnd404Code(){
+    @Order(9)
+    public void givenGetDeadsPerFamily_afterCreatedANewDead_shouldReturnFamilyDtoPageUpdatedAnd200Code() throws JSONException {
+        String familyDtos = webTestClient.get()
+                .uri("/deads/family")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+
+        JSONObject jsonObject = new JSONObject(familyDtos);
+        JSONArray jsonArray = jsonObject.getJSONArray("content");
+        JSONObject sortObject = jsonObject.getJSONObject("sort");
+        JSONObject jsonObject1 = jsonArray.getJSONObject(14);
+
+        assertEquals(31, jsonObject1.get("id"));
+        assertEquals("House Targaryen", jsonObject1.get("name"));
+        assertEquals(1, jsonObject1.get("deads"));
+    }
+
+    @Test
+    @Order(10)
+    public void givenAIncorrectPostRequest_whenCallPostMethodByInvalidCharacter_shouldReturnCharacterNotFoundExceptionAnd404Code(){
         final DeadDto newDeadDto = DeadDto.builder()
                 .id(1)
                 .name("Invalid")
@@ -116,7 +277,8 @@ public class DeadControllerTest {
     }
 
     @Test
-    public void t6_givenAIncorrectPostRequest_whenCallPostMethodByInvalidContinent_shouldReturnContinentNotFoundExceptionAnd404Code(){
+    @Order(11)
+    public void givenAIncorrectPostRequest_whenCallPostMethodByInvalidContinent_shouldReturnContinentNotFoundExceptionAnd404Code(){
         final DeadDto newDeadDto = DeadDto.builder()
                 .id(1)
                 .name("Daenerys Targaryen")
@@ -138,7 +300,8 @@ public class DeadControllerTest {
     }
 
     @Test
-    public void t7_givenAIncorrectPostRequest_whenCallPostMethodByInvalidFamily_shouldReturnFamilyDoesntExistExceptionAnd404Code(){
+    @Order(12)
+    public void givenAIncorrectPostRequest_whenCallPostMethodByInvalidFamily_shouldReturnFamilyDoesntExistExceptionAnd404Code(){
         final DeadDto newDeadDto = DeadDto.builder()
                 .id(1)
                 .name("Daenerys Targaryen")
@@ -161,7 +324,8 @@ public class DeadControllerTest {
     }
 
     @Test
-    public void t8_givenAIncorrectPostRequest_whenCallPostMethodByCharacterDead_shouldReturnCharacterAlreadyDeadExceptionAnd404Code(){
+    @Order(13)
+    public void givenAIncorrectPostRequest_whenCallPostMethodByCharacterDead_shouldReturnCharacterAlreadyDeadExceptionAnd404Code(){
         final DeadDto newDeadDto = DeadDto.builder()
                 .id(1)
                 .name("Daenerys Targaryen")
