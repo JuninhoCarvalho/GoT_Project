@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-@TestMethodOrder(value = OrderAnnotation.class)
 @ActiveProfiles("test")
 public class CharacterControllerTest {
 
@@ -31,7 +30,6 @@ public class CharacterControllerTest {
     private WebTestClient webTestClient;
 
     @Test
-    @Order(1)
     public void givenGetCharactersRequest_shouldReturnCharacterDtoListAnd200Code(){
         List<CharacterDto> characterDtos = webTestClient.get()
                 .uri("/characters")
@@ -52,7 +50,6 @@ public class CharacterControllerTest {
     }
 
     @Test
-    @Order(2)
     public void givenGetCharacterRequest_whenCallGetMethodByValidName_shouldReturnCharacterDtoAnd200Code(){
        CharacterDto characterDto = webTestClient.get()
                 .uri("/characters/Jon Snow")
@@ -72,7 +69,6 @@ public class CharacterControllerTest {
     }
 
     @Test
-    @Order(3)
     public void givenGetCharacterRequest_whenCallGetMethodByInvalidName_shouldReturnCharacterNotFoundExceptionAnd404Code(){
         String message = webTestClient.get()
                 .uri("/characters/Invalid")
@@ -86,7 +82,6 @@ public class CharacterControllerTest {
     }
 
     @Test
-    @Order(4)
     public void givenACorrectPostRequest_whenCallPostMethod_shouldReturnNewCharacterDtoAnd201Code(){
         CharacterDto newCharacterDto = CharacterDto.builder()
                 .id(54)
@@ -119,7 +114,6 @@ public class CharacterControllerTest {
     }
 
     @Test
-    @Order(5)
     public void givenAIncorrectPostRequest_whenCallPostMethodByCharacterAlreadyCreated_shouldReturnCharacterAlreadyExistsExceptionAnd409Code(){
         CharacterDto newCharacterDto = CharacterDto.builder()
                 .id(1)
@@ -145,7 +139,6 @@ public class CharacterControllerTest {
     }
 
     @Test
-    @Order(6)
     public void givenAIncorrectPostRequest_whenCallPostMethodByInvalidFamily_shouldReturnFamilyDoesntExistExceptionAnd404Code(){
         CharacterDto newCharacterDto = CharacterDto.builder()
                 .id(55)
@@ -172,7 +165,6 @@ public class CharacterControllerTest {
     }
 
     @Test
-    @Order(7)
     public void givenDeleteRequest_whenCallDeleteMethodByValidName_shouldReturnDeletedMessageAnd200Code(){
         String message = webTestClient.delete()
                 .uri("/characters/delete/Sansa Stark")
@@ -186,7 +178,6 @@ public class CharacterControllerTest {
     }
 
     @Test
-    @Order(8)
     public void givenDeleteRequest_whenCallDeleteMethodByInvalidName_shouldReturnCharacterNotFoundExceptionAnd404Code(){
         String message = webTestClient.delete()
                 .uri("/characters/delete/Invalid")
