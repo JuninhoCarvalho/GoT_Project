@@ -15,6 +15,8 @@ import br.com.inatel.FranciscoJunior_GotProject.repository.FamilyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientException;
 
@@ -22,6 +24,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -50,8 +53,8 @@ public class GotService {
         }
     }
     @Cacheable(value = "charactersList")
-    public List<CharacterDto> findAllCharacters(){
-        return GotMapper.toCharacterDtoList(characterRepository.findAll());
+    public Page<CharacterDto> findAllCharacters(Pageable page){
+        return GotMapper.toCharacterDtoPage(characterRepository.findAll(page));
     }
 
     public CharacterDto findCharacter(String name) {
@@ -91,7 +94,7 @@ public class GotService {
         throw new CharacterNotFoundException(fullName);
     }
 
-    public void insertFamily(List<String> familyNames) {
+    public void insertFamily(Set<String> familyNames) {
         familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
     }
 
@@ -121,8 +124,8 @@ public class GotService {
     }
 
     @Cacheable(value = "deadsPerFamilyList")
-    public List<FamilyDto> findDeadsPerFamily() {
-        return GotMapper.toFamilyDtoList(familyRepository.findAll());
+    public Page<FamilyDto> findDeadsPerFamily(Pageable page) {
+        return GotMapper.toFamilyDtoPage(familyRepository.findAll(page));
     }
 
     @CacheEvict(value = "deadsPerFamilyList", allEntries = true)

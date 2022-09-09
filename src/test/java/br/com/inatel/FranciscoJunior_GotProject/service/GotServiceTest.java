@@ -53,11 +53,13 @@ public class GotServiceTest {
     private DeadDto deadDto;
     private Family family;
     private ContinentDto continentDto;
+    private Page<Character> characterPage;
+    private Page<Family> familyPage;
     private List<Character> characterList = new ArrayList<>();
     private List<Family> familyList = new ArrayList<>();
     private final List<Dead> deadList = new ArrayList<>();
     private List<ContinentDto> continentDtos = new ArrayList<>();
-
+    Pageable page = PageRequest.of(0, 10);
     @InjectMocks
     private GotService gotService = new GotService();
 
@@ -111,7 +113,9 @@ public class GotServiceTest {
                 .build();
 
         characterList.add(character);
+        characterPage = new PageImpl<>(characterList);
         familyList.add(family);
+        familyPage = new PageImpl<>(familyList);
     }
 
     @Test
@@ -120,30 +124,31 @@ public class GotServiceTest {
 
         List<Character> characters = gotService.populateCharactersDb();
 
-        assertEquals(characters.get(0).getFirstName(), character.getFirstName());
-        assertEquals(characters.get(0).getLastName(), character.getLastName());
-        assertEquals(characters.get(0).getFullName(), character.getFullName());
-        assertEquals(characters.get(0).getTitle(), character.getTitle());
-        assertEquals(characters.get(0).getFamily(), character.getFamily());
-        assertEquals(characters.get(0).getImage(), character.getImage());
-        assertEquals(characters.get(0).getImageUrl(), character.getImageUrl());
+        assertEquals(character.getFirstName(), characters.get(0).getFirstName());
+        assertEquals(character.getLastName(), characters.get(0).getLastName());
+        assertEquals(character.getFullName(), characters.get(0).getFullName());
+        assertEquals(character.getTitle(), characters.get(0).getTitle());
+        assertEquals(character.getFamily(), characters.get(0).getFamily());
+        assertEquals(character.getImage(), characters.get(0).getImage());
+        assertEquals(character.getImageUrl(), characters.get(0).getImageUrl());
     }
 
     @Test
     public void givenFindAllCharacters_shouldReturnCharactersDtoPage() {
-        when(characterRepository.findAll()).thenReturn(characterList);
+        when(characterRepository.findAll(page)).thenReturn(characterPage);
 
-        List<CharacterDto> characterDtos = gotService.findAllCharacters();
+        Page<CharacterDto> allCharacters = gotService.findAllCharacters(page);
+        List<CharacterDto> characterDtos = allCharacters.stream().toList();
 
         assertEquals(1, characterDtos.size());
-        assertEquals(characterDtos.get(0).getId(), character.getId());
-        assertEquals(characterDtos.get(0).getFirstName(), character.getFirstName());
-        assertEquals(characterDtos.get(0).getLastName(), character.getLastName());
-        assertEquals(characterDtos.get(0).getFullName(), character.getFullName());
-        assertEquals(characterDtos.get(0).getTitle(), character.getTitle());
-        assertEquals(characterDtos.get(0).getFamily(), character.getFamily());
-        assertEquals(characterDtos.get(0).getImage(), character.getImage());
-        assertEquals(characterDtos.get(0).getImageUrl(), character.getImageUrl());
+        assertEquals(character.getId(), characterDtos.get(0).getId());
+        assertEquals(character.getFirstName(), characterDtos.get(0).getFirstName());
+        assertEquals(character.getLastName(), characterDtos.get(0).getLastName());
+        assertEquals(character.getFullName(), characterDtos.get(0).getFullName());
+        assertEquals(character.getTitle(), characterDtos.get(0).getTitle());
+        assertEquals(character.getFamily(), characterDtos.get(0).getFamily());
+        assertEquals(character.getImage(), characterDtos.get(0).getImage());
+        assertEquals(character.getImageUrl(), characterDtos.get(0).getImageUrl());
     }
 
     @Test
@@ -152,14 +157,14 @@ public class GotServiceTest {
 
         CharacterDto chDto = gotService.findCharacter("Francisco Junior");
 
-        assertEquals(chDto.getId(), character.getId());
-        assertEquals(chDto.getFirstName(), character.getFirstName());
-        assertEquals(chDto.getLastName(), character.getLastName());
-        assertEquals(chDto.getFullName(), character.getFullName());
-        assertEquals(chDto.getTitle(), character.getTitle());
-        assertEquals(chDto.getFamily(), character.getFamily());
-        assertEquals(chDto.getImage(), character.getImage());
-        assertEquals(chDto.getImageUrl(), character.getImageUrl());
+        assertEquals(character.getId(), chDto.getId());
+        assertEquals(character.getFirstName(), chDto.getFirstName());
+        assertEquals(character.getLastName(), chDto.getLastName());
+        assertEquals(character.getFullName(), chDto.getFullName());
+        assertEquals(character.getTitle(), chDto.getTitle());
+        assertEquals(character.getFamily(), chDto.getFamily());
+        assertEquals(character.getImage(), chDto.getImage());
+        assertEquals(character.getImageUrl(), chDto.getImageUrl());
     }
 
     @Test
@@ -181,14 +186,14 @@ public class GotServiceTest {
 
         CharacterDto chCreated = gotService.createCharacter(characterDto);
 
-        assertEquals(chCreated.getId(), character.getId());
-        assertEquals(chCreated.getFirstName(), character.getFirstName());
-        assertEquals(chCreated.getLastName(), character.getLastName());
-        assertEquals(chCreated.getFullName(), character.getFullName());
-        assertEquals(chCreated.getTitle(), character.getTitle());
-        assertEquals(chCreated.getFamily(), character.getFamily());
-        assertEquals(chCreated.getImage(), character.getImage());
-        assertEquals(chCreated.getImageUrl(), character.getImageUrl());
+        assertEquals(character.getId(), chCreated.getId());
+        assertEquals(character.getFirstName(), chCreated.getFirstName());
+        assertEquals(character.getLastName(), chCreated.getLastName());
+        assertEquals(character.getFullName(), chCreated.getFullName());
+        assertEquals(character.getTitle(), chCreated.getTitle());
+        assertEquals(character.getFamily(), chCreated.getFamily());
+        assertEquals(character.getImage(), chCreated.getImage());
+        assertEquals(character.getImageUrl(), chCreated.getImageUrl());
     }
 
     @Test
@@ -220,14 +225,14 @@ public class GotServiceTest {
 
         CharacterDto chDto = gotService.deleteCharacter("Francisco Junior");
 
-        assertEquals(chDto.getId(), character.getId());
-        assertEquals(chDto.getFirstName(), character.getFirstName());
-        assertEquals(chDto.getLastName(), character.getLastName());
-        assertEquals(chDto.getFullName(), character.getFullName());
-        assertEquals(chDto.getTitle(), character.getTitle());
-        assertEquals(chDto.getFamily(), character.getFamily());
-        assertEquals(chDto.getImage(), character.getImage());
-        assertEquals(chDto.getImageUrl(), character.getImageUrl());
+        assertEquals(character.getId(), chDto.getId());
+        assertEquals(character.getFirstName(), chDto.getFirstName());
+        assertEquals(character.getLastName(), chDto.getLastName());
+        assertEquals(character.getFullName(), chDto.getFullName());
+        assertEquals(character.getTitle(), chDto.getTitle());
+        assertEquals(character.getFamily(), chDto.getFamily());
+        assertEquals(character.getImage(), chDto.getImage());
+        assertEquals(character.getImageUrl(), chDto.getImageUrl());
     }
 
     @Test
@@ -337,22 +342,23 @@ public class GotServiceTest {
 
         List<DeadDto> deadDtos = gotService.findAllDeads();
 
-        assertEquals(deadDtos.size(), 1);
-        assertEquals(deadDtos.get(0).getId(), dead.getId());
-        assertEquals(deadDtos.get(0).getName(), dead.getName());
-        assertEquals(deadDtos.get(0).getFamily(), dead.getFamily());
-        assertEquals(deadDtos.get(0).getContinent(), dead.getContinent());
+        assertEquals(1, deadDtos.size());
+        assertEquals(dead.getId(), deadDtos.get(0).getId());
+        assertEquals(dead.getName(), deadDtos.get(0).getName());
+        assertEquals(dead.getFamily(), deadDtos.get(0).getFamily());
+        assertEquals(dead.getContinent(), deadDtos.get(0).getContinent());
     }
 
     @Test
     public void givenFindDeadsPerFamily_shouldReturnFamilyDtoPage(){
-        when(familyRepository.findAll()).thenReturn(familyList);
+        when(familyRepository.findAll(page)).thenReturn(familyPage);
 
-        List<FamilyDto> familyDtos = gotService.findDeadsPerFamily();
+        Page<FamilyDto> allDeadsPerFamily = gotService.findDeadsPerFamily(page);
+        List<FamilyDto> familyDtos = allDeadsPerFamily.stream().toList();
 
-        assertEquals(familyDtos.get(0).getId(), 1);
-        assertEquals(familyDtos.get(0).getName(), family.getName());
-        assertEquals(familyDtos.get(0).getDeads(), 0);
+        assertEquals(1, familyDtos.get(0).getId());
+        assertEquals(family.getName(), familyDtos.get(0).getName());
+        assertEquals(0, familyDtos.get(0).getDeads());
     }
 
     @Test
@@ -363,14 +369,14 @@ public class GotServiceTest {
         when(familyRepository.findByName(any(String.class))).thenReturn(Optional.of(family));
         when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(Optional.empty());
         when(deadRepository.save(any(Dead.class))).thenReturn(dead);
-        when(familyRepository.findAll()).thenReturn(familyList);
+        when(familyRepository.findAll(page)).thenReturn(familyPage);
 
         gotService.includeNewDead(deadDto);
+        Page<FamilyDto> allDeadsPerFamily = gotService.findDeadsPerFamily(page);
+        List<FamilyDto> familyDtos = allDeadsPerFamily.stream().toList();
 
-        List<FamilyDto> familyDtos = gotService.findDeadsPerFamily();
-
-        assertEquals(familyDtos.get(0).getId(), 1);
-        assertEquals(familyDtos.get(0).getName(), dead.getFamily());
-        assertEquals(familyDtos.get(0).getDeads(), 1);
+        assertEquals(1, familyDtos.get(0).getId());
+        assertEquals(dead.getFamily(), familyDtos.get(0).getName());
+        assertEquals(1, familyDtos.get(0).getDeads());
     }
 }

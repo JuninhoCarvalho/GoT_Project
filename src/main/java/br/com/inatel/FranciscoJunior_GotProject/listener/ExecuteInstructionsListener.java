@@ -26,10 +26,6 @@ public class ExecuteInstructionsListener implements ApplicationListener<Applicat
         Set<String> familyNames = new HashSet<>();
         characters.forEach(c -> familyNames.add(c.getFamily()));
 
-        List<String> names = new ArrayList<>();
-        names.addAll(familyNames);
-        Collections.sort(names);
-
-        gotService.insertFamily(names);
+        gotService.insertFamily(familyNames);
     }
 }

@@ -26,8 +26,8 @@ public class CharacterController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<CharacterDto> listAllCharacters(){
-        return gotService.findAllCharacters();
+    public Page<CharacterDto> listAllCharacters(@PageableDefault(page = 0, size = 25) Pageable page){
+        return gotService.findAllCharacters(page);
     }
 
     @GetMapping("/{name}")
