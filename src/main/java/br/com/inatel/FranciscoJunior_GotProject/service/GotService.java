@@ -43,14 +43,10 @@ public class GotService {
     DeadRepository deadRepository;
 
     public List<Character> populateCharactersDb(){
-        try {
-            List<Character> characters = GotMapper.toCharacterList(gotAdapter.listCharacters());
-            characterRepository.saveAll(characters);
+        List<Character> characters = GotMapper.toCharacterList(gotAdapter.listCharacters());
+        characterRepository.saveAll(characters);
 
-            return characters;
-        }catch(WebClientException webClientException){
-            throw new ExternalApiConnectionException(webClientException);
-        }
+        return characters;
     }
     @Cacheable(value = "charactersList")
     public Page<CharacterDto> findAllCharacters(Pageable page){
@@ -123,12 +119,10 @@ public class GotService {
         return GotMapper.toDeadDto(deadRepository.save(GotMapper.toDead(deadDto)));
     }
 
-    @Cacheable(value = "deadsPerFamilyList")
     public Page<FamilyDto> findDeadsPerFamily(Pageable page) {
         return GotMapper.toFamilyDtoPage(familyRepository.findAll(page));
     }
 
-    @CacheEvict(value = "deadsPerFamilyList", allEntries = true)
     public void deadPerFamilyCalculation(DeadDto dead) {
         Family family = familyRepository.findByName(dead.getFamily()).get();
         family.setDeads(family.getDeads() + 1);

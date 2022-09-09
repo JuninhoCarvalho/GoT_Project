@@ -308,6 +308,31 @@ public class CharacterControllerTest {
 
     @Test
     @Order(12)
+    public void givenAIncorrectPostRequest_whenCallPostMethodByANullField_shouldReturnMethodArgumentNotValidExceptionAnd400Code(){
+        CharacterDto newCharacterDto = CharacterDto.builder()
+                .id(55)
+                .lastName("Targaryen")
+                .fullName("Maria Targaryen")
+                .title("Tester")
+                .family("House Invalid")
+                .image("image.jpg")
+                .imageUrl("img.com.br/Maria-Targaryen")
+                .build();
+
+        String message = webTestClient.post()
+                .uri("/characters")
+                .body(BodyInserters.fromValue(newCharacterDto))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+
+        assertTrue(message.contains("firstName field is missing!"));
+    }
+
+    @Test
+    @Order(13)
     public void givenDeleteRequest_whenCallDeleteMethodByValidName_shouldReturnDeletedMessageAnd200Code(){
         String message = webTestClient.delete()
                 .uri("/characters/delete/Sansa Stark")
@@ -317,11 +342,11 @@ public class CharacterControllerTest {
                 .returnResult()
                 .getResponseBody();
 
-        assertEquals(message, String.format("Sansa Stark was successfully deleted!"));
+        assertEquals("Sansa Stark was successfully deleted!", message);
     }
 
     @Test
-    @Order(13)
+    @Order(14)
     public void givenDeleteRequest_whenCallDeleteMethodByInvalidName_shouldReturnCharacterNotFoundExceptionAnd404Code(){
         String message = webTestClient.delete()
                 .uri("/characters/delete/Invalid")
