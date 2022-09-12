@@ -78,12 +78,12 @@ public class GotService {
     }
 
     @CacheEvict(value = "charactersList", allEntries = true)
-    public CharacterDto deleteCharacter(String fullName) {
+    public String deleteCharacter(String fullName) {
         Optional<Character> character = characterRepository.findByFullName(fullName);
 
         if(character.isPresent()){
             characterRepository.deleteByFullName(fullName);
-            return GotMapper.toCharacterDto(character.get());
+            return String.format("%s was successfully deleted!", fullName);
         }
 
         throw new CharacterNotFoundException(fullName);

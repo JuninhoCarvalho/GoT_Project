@@ -3,6 +3,8 @@ package br.com.inatel.FranciscoJunior_GotProject.controller;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.DeadDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.FamilyDto;
 import br.com.inatel.FranciscoJunior_GotProject.service.GotService;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,12 +27,18 @@ public class DeadController {
         this.gotService = gotService;
     }
 
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = DeadDto.class),
+            @ApiResponse(code = 500, message = "Internal Server Error: Exception Specialized Message."),
+            @ApiResponse(code = 503, message = "Service Unavailable: JDBC Connection fail.")})
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<DeadDto> listAllDeads(){
         return gotService.findAllDeads();
     }
 
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = FamilyDto.class),
+            @ApiResponse(code = 500, message = "Internal Server Error: Exception Specialized Message."),
+            @ApiResponse(code = 503, message = "Service Unavailable: JDBC Connection fail.")})
     @GetMapping("/family")
     @ResponseStatus(HttpStatus.OK)
     public Page<FamilyDto> listDeadsPerFamily(@PageableDefault(sort = "name", direction = Sort.Direction.ASC,
@@ -38,6 +46,12 @@ public class DeadController {
         return gotService.findDeadsPerFamily(page);
     }
 
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = DeadDto.class),
+            @ApiResponse(code = 400, message = "Bad Request: Character No Belongs to that family."),
+            @ApiResponse(code = 404, message = "Not Found: Character, continent or family Not Found."),
+            @ApiResponse(code = 409, message = "Conflict: Character Already inserted in database."),
+            @ApiResponse(code = 500, message = "Internal Server Error: Exception Specialized Message."),
+            @ApiResponse(code = 503, message = "Service Unavailable: JDBC Connection fail.")})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DeadDto includeNewDead(@RequestBody @Valid DeadDto deadDto) {
