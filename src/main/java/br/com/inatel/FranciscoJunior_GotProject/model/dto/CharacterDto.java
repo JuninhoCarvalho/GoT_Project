@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * Data transfer object for Character Class
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

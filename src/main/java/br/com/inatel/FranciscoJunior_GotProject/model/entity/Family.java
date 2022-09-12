@@ -10,6 +10,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+/**
+ * Family Entity
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

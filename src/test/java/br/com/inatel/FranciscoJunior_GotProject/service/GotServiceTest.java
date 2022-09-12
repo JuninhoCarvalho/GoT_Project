@@ -33,6 +33,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+/**
+ * Test class for GotService
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @RunWith(MockitoJUnitRunner.class)
 @SpringBootTest
 public class GotServiceTest {
@@ -62,6 +67,9 @@ public class GotServiceTest {
     @InjectMocks
     private GotService gotService = new GotService();
 
+    /**
+     * Method annotated with @Before that will build each object for the following tests
+     */
     @Before
     public void init() {
         character = Character.builder()
@@ -117,6 +125,9 @@ public class GotServiceTest {
         familyPage = new PageImpl<>(familyList);
     }
 
+    /**
+     * Should populate de database with initials characters
+     */
     @Test
     public void givenPopulateCharacterDb_shouldReturnCharacterList(){
         when(gotAdapter.listCharacters()).thenReturn(GotMapper.toCharacterDtoList(characterList));
@@ -132,6 +143,9 @@ public class GotServiceTest {
         assertEquals(character.getImageUrl(), characters.get(0).getImageUrl());
     }
 
+    /**
+     * Should return CharacterDto Page and 200 status code
+     */
     @Test
     public void givenFindAllCharacters_shouldReturnCharactersDtoPage() {
         when(characterRepository.findAll(page)).thenReturn(characterPage);
@@ -150,6 +164,9 @@ public class GotServiceTest {
         assertEquals(character.getImageUrl(), characterDtos.get(0).getImageUrl());
     }
 
+    /**
+     * Should return CharacterDto and 200 status code
+     */
     @Test
     public void givenFindCharacterByName_whenFindCharacterByValidName_shouldReturnCharacterDto() {
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
@@ -166,6 +183,9 @@ public class GotServiceTest {
         assertEquals(character.getImageUrl(), chDto.getImageUrl());
     }
 
+    /**
+     * Should throw the CharacterNotFoundException
+     */
     @Test
     public void givenFindCharacterByName_whenFindCharacterByNonExistentName_shouldReturnCharacterNotFoundException() {
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.empty());
@@ -177,6 +197,9 @@ public class GotServiceTest {
                 .hasMessageContaining("Invalid Not Found!");
     }
 
+    /**
+     * Should return new character created
+     */
     @Test
     public void givenCharacterDto_whenSaveCharacterAndDataIsValid_shouldReturnCharacterDto() {
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.empty());
@@ -195,6 +218,9 @@ public class GotServiceTest {
         assertEquals(character.getImageUrl(), chCreated.getImageUrl());
     }
 
+    /**
+     * Should throw CharacterAlreadyExistsException
+     */
     @Test
     public void givenCharacterDto_whenSaveCharacterAndCharacterAlreadyExists_shouldReturnCharacterAlreadyExistsException() {
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
@@ -206,6 +232,9 @@ public class GotServiceTest {
                 .hasMessageContaining("The character 'Francisco Junior' already exists!");
     }
 
+    /**
+     * Should throw FamilyDoesntExistException
+     */
     @Test
     public void givenCharacterDto_whenSaveCharacterAndIsAInvalidFamily_shouldReturnFamilyDoesntExistException() {
         characterDto.setFamily("Invalid");
@@ -218,6 +247,9 @@ public class GotServiceTest {
                 .hasMessageContaining("The 'Invalid' family doesn't exist in the Game of Thrones world!");
     }
 
+    /**
+     * Should save family list in database
+     */
     @Test
     public void givenInsertFamily_whenSendSetFamilyNames_shouldInsertInFamilyRepository() {
         when(familyRepository.save(any(Family.class))).thenReturn(family);
@@ -234,6 +266,9 @@ public class GotServiceTest {
         assertEquals(0, familyDtos.get(0).getDeads());
     }
 
+    /**
+     * Should return the message with the name of the deleted character
+     */
     @Test
     public void givenDeleteCharacterByName_whenDeleteExistingCharacter_shouldReturnDeletedMessage() {
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
@@ -243,6 +278,9 @@ public class GotServiceTest {
         assertEquals(String.format("%s was successfully deleted!", character.getFullName()), deleted);
     }
 
+    /**
+     * Should throw CharacterNotFoundException
+     */
     @Test
     public void givenDeleteCharacterByName_whenDeleteNonExistingCharacter_shouldReturnCharacterNotFoundException() {
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.empty());
@@ -254,6 +292,9 @@ public class GotServiceTest {
                 .hasMessageContaining("Invalid Not Found!");
     }
 
+    /**
+     * should return empty DeadDto list
+     */
     @Test
     public void givenFindAllDeads_shouldReturnDeadDtoListEmpty(){
         when(deadRepository.findAll()).thenReturn(deadList);
@@ -263,6 +304,9 @@ public class GotServiceTest {
         assertEquals(deadDtos.size(), 0);
     }
 
+    /**
+     * Should save new dead in database
+     */
     @Test
     public void givenDeadDto_whenIncludeNewDeadAndDataIsValid_shouldReturnDeadDto(){
         continentDtos.add(continentDto);
@@ -280,6 +324,9 @@ public class GotServiceTest {
         assertEquals(deadReturn.getContinent(), dead.getContinent());
     }
 
+    /**
+     * Should throw CharacterNotFoundException
+     */
     @Test
     public void givenDeadDto_whenIncludeNewDeadAndCharacterDoesntExist_shouldReturnCharacterNotFoundException(){
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.empty());
@@ -292,6 +339,9 @@ public class GotServiceTest {
                 .hasMessageContaining("%s Not Found!", deadDto.getName());
     }
 
+    /**
+     * Should throw ContinentNotFoundException
+     */
     @Test
     public void givenDeadDto_whenIncludeNewDeadAndIsInvalidContinent_shouldReturnContinentNotFoundException(){
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
@@ -304,6 +354,9 @@ public class GotServiceTest {
                 .hasMessageContaining("%s is not a valid continent!", deadDto.getContinent());
     }
 
+    /**
+     * Should throw FamilyDoesntExistException
+     */
     @Test
     public void givenDeadDto_whenIncludeNewDeadAndIsInvalidFamily_shouldReturnFamilyDoesntExistException(){
         continentDtos.add(continentDto);
@@ -319,6 +372,9 @@ public class GotServiceTest {
                         deadDto.getFamily());
     }
 
+    /**
+     * Should throw CharacterAlreadyDeadException
+     */
     @Test
     public void givenDeadDto_whenIncludeNewDeadAndCharacterAlreadyDead_shouldReturnCharacterAlreadyDeadException(){
         continentDtos.add(continentDto);
@@ -335,6 +391,9 @@ public class GotServiceTest {
                         deadDto.getName(), deadDto.getFamily());
     }
 
+    /**
+     * Should throw CharacterNoBelongsToThatFamilyException
+     */
     @Test
     public void givenDeadDto_whenIncludeNewDeadByCharacterInvalidFamily_shouldReturnCharacterNoBelongsToThatFamilyException(){
         continentDtos.add(continentDto);
@@ -353,6 +412,9 @@ public class GotServiceTest {
                         deadDto.getName(), deadDto.getFamily()));
     }
 
+    /**
+     * When include new dead should return list with the new dead inserted
+     */
     @Test
     public void givenFindAllDeads_whenIncludeNewDeadIsValidInformations_shouldReturnDeadDtoList(){
         continentDtos.add(continentDto);
@@ -375,6 +437,9 @@ public class GotServiceTest {
         assertEquals(dead.getContinent(), deadDtos.get(0).getContinent());
     }
 
+    /**
+     * Should return familyDto page
+     */
     @Test
     public void givenFindDeadsPerFamily_shouldReturnFamilyDtoPage(){
         when(familyRepository.findAll(page)).thenReturn(familyPage);
@@ -387,6 +452,9 @@ public class GotServiceTest {
         assertEquals(0, familyDtos.get(0).getDeads());
     }
 
+    /**
+     * When include new dead should return updated list with addition of deaths in such family
+     */
     @Test
     public void givenDeadDto_whenIncludeNewDeadIsValidInformations_findDeadsPerFamilyShouldReturnListUpdated(){
         continentDtos.add(continentDto);

@@ -5,6 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
+/**
+ * Dead Repository
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 public interface DeadRepository extends JpaRepository<Dead, Integer> {
     Optional<Dead> findByNameAndFamily(String name, String family);
 }

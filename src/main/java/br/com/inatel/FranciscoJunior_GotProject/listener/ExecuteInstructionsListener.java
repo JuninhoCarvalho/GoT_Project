@@ -9,6 +9,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+/**
+ * Listener class, used to execute commands once the application is ready
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @Component
 public class ExecuteInstructionsListener implements ApplicationListener<ApplicationReadyEvent> {
 
@@ -19,6 +24,10 @@ public class ExecuteInstructionsListener implements ApplicationListener<Applicat
         this.gotService = gotService;
     }
 
+    /**
+     * The method will populate de database with chacters provided by the external api and create the initial families
+     * @param event the event to respond to when the application is ready
+     */
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         List<Character> characters = gotService.populateCharactersDb();

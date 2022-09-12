@@ -19,6 +19,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Test class for DeadController
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @ActiveProfiles("test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -27,6 +32,10 @@ public class DeadControllerTest {
     @Autowired
     private WebTestClient webTestClient;
 
+
+    /**
+     * Should return empty DeadDto List
+     */
     @Test
     @Order(1)
     public void givenGetDeadsRequest_shouldReturnEmptyDeadDtoListAnd200Code(){
@@ -41,6 +50,10 @@ public class DeadControllerTest {
         assertEquals(0, deadDtos.size());
     }
 
+    /**
+     * @throws JSONException
+     * Should return FamilyDto page
+     */
     @Test
     @Order(2)
     public void givenGetDeadsPerFamily_shouldReturnFamilyDtoPageAnd200Code() throws JSONException {
@@ -67,6 +80,10 @@ public class DeadControllerTest {
         assertEquals(0, jsonObject1.get("deads"));
     }
 
+    /**
+     * @throws JSONException
+     * Should return FamilyDto Page And 200 status code
+     */
     @Test
     @Order(3)
     public void givenGetDeadsPerFamily_whenGetCharactersSettingPageable_shouldReturnFamilyDtoPageAnd200Code() throws JSONException {
@@ -98,6 +115,10 @@ public class DeadControllerTest {
         assertEquals(0, jsonObject1.get("deads"));
     }
 
+    /**
+     * @throws JSONException
+     * Should return FamilyDto Page And 200 status code
+     */
     @Test
     @Order(4)
     public void givenGetDeadsPerFamily_whenGetCharactersSettingJustPage_shouldReturnFamilyDtoPageAnd200Code() throws JSONException {
@@ -128,6 +149,10 @@ public class DeadControllerTest {
         assertEquals(0, jsonObject1.get("deads"));
     }
 
+    /**
+     * @throws JSONException
+     * Should return FamilyDto Page And 200 status code
+     */
     @Test
     @Order(5)
     public void givenGetDeadsPerFamily_whenGetCharactersSettingJustSize_shouldReturnFamilyDtoPageAnd200Code() throws JSONException {
@@ -158,6 +183,10 @@ public class DeadControllerTest {
         assertEquals(0, jsonObject1.get("deads"));
     }
 
+    /**
+     * @throws JSONException
+     * Should return empty FamilyDto Page And 200 status code
+     */
     @Test
     @Order(6)
     public void givenGetDeadsPerFamily_whenGetCharactersSettingPageOutOfTotal_shouldReturnFamilyDtoPageAnd200Code() throws JSONException {
@@ -188,6 +217,9 @@ public class DeadControllerTest {
         assertTrue(sortObject.get("sorted").equals(true));
     }
 
+    /**
+     * Should return new Dead And 201 status code
+     */
     @Test
     @Order(7)
     public void givenACorrectPostRequest_whenCallPostMethod_shouldReturnThatNewDeadDtoAnd201Code(){
@@ -214,6 +246,9 @@ public class DeadControllerTest {
         assertEquals(newDeadDto.getContinent(), deadDto.getContinent());
     }
 
+    /**
+     * Should return DeadDto List And 200 status code
+     */
     @Test
     @Order(8)
     public void givenGetDeadsRequest_shouldReturnDeadDtoListAnd200Code(){
@@ -232,6 +267,10 @@ public class DeadControllerTest {
         assertEquals("Westeros", deadDtos.get(0).getContinent());
     }
 
+    /**
+     * @throws JSONException
+     * Should return FamilyDto page updated and 200 status code
+     */
     @Test
     @Order(9)
     public void givenGetDeadsPerFamily_afterCreatedANewDead_shouldReturnFamilyDtoPageUpdatedAnd200Code() throws JSONException {
@@ -245,7 +284,6 @@ public class DeadControllerTest {
 
         JSONObject jsonObject = new JSONObject(familyDtos);
         JSONArray jsonArray = jsonObject.getJSONArray("content");
-        JSONObject sortObject = jsonObject.getJSONObject("sort");
         JSONObject jsonObject1 = jsonArray.getJSONObject(14);
 
         assertEquals(31, jsonObject1.get("id"));
@@ -253,6 +291,9 @@ public class DeadControllerTest {
         assertEquals(1, jsonObject1.get("deads"));
     }
 
+    /**
+     * Should throw CharacterNotFoundException and 404 status code
+     */
     @Test
     @Order(10)
     public void givenAIncorrectPostRequest_whenCallPostMethodByInvalidCharacter_shouldReturnCharacterNotFoundExceptionAnd404Code(){
@@ -276,6 +317,9 @@ public class DeadControllerTest {
         assertTrue(message.contains(String.format("%s Not Found!", newDeadDto.getName())));
     }
 
+    /**
+     * Should throw ContinentNotFoundException and 404 status code
+     */
     @Test
     @Order(11)
     public void givenAIncorrectPostRequest_whenCallPostMethodByInvalidContinent_shouldReturnContinentNotFoundExceptionAnd404Code(){
@@ -299,6 +343,9 @@ public class DeadControllerTest {
         assertTrue(message.contains(newDeadDto.getContinent() + " is not a valid continent!"));
     }
 
+    /**
+     * Should throw FamilyDoesntExistException and 404 status code
+     */
     @Test
     @Order(12)
     public void givenAIncorrectPostRequest_whenCallPostMethodByInvalidFamily_shouldReturnFamilyDoesntExistExceptionAnd404Code(){
@@ -323,9 +370,12 @@ public class DeadControllerTest {
                 newDeadDto.getFamily())));
     }
 
+    /**
+     * Should throw CharacterAlreadyDeadException and 409 status code
+     */
     @Test
     @Order(13)
-    public void givenAIncorrectPostRequest_whenCallPostMethodByCharacterDead_shouldReturnCharacterAlreadyDeadExceptionAnd404Code(){
+    public void givenAIncorrectPostRequest_whenCallPostMethodByCharacterDead_shouldReturnCharacterAlreadyDeadExceptionAnd409Code(){
         final DeadDto newDeadDto = DeadDto.builder()
                 .id(1)
                 .name("Daenerys Targaryen")
@@ -347,6 +397,9 @@ public class DeadControllerTest {
                 newDeadDto.getName(), newDeadDto.getFamily())));
     }
 
+    /**
+     * Should throw CharacterNoBelongsToThatFamilyException and 400 status code
+     */
     @Test
     @Order(14)
     public void givenAIncorrectPostRequest_whenCallPostMethodByCharacterInvalidFamily_shouldReturnCharacterNoBelongsToThatFamilyExceptionAnd400Code(){
