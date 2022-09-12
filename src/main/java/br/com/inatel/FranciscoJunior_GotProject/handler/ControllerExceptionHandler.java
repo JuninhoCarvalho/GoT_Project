@@ -65,6 +65,15 @@ public class ControllerExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(CharacterNoBelongsToThatFamilyException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public Error CharacterNoBelongsToThatFamily(CharacterNoBelongsToThatFamilyException characterNoBelongsToThatFamily){
+        return Error.builder()
+                .httpStatusCode(HttpStatus.BAD_REQUEST)
+                .message(characterNoBelongsToThatFamily.getMessage())
+                .build();
+    }
+
     @ExceptionHandler(ExternalApiConnectionException.class)
     @ResponseStatus(value = HttpStatus.SERVICE_UNAVAILABLE)
     public Error externalApiConnectionException(ExternalApiConnectionException externalApiConnectionException){
@@ -109,7 +118,6 @@ public class ControllerExceptionHandler {
                 .message(property.getMessage())
                 .build();
     }
-
     @ExceptionHandler(WebClientException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public Error externalApiConnectionException(WebClientException web){

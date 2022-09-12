@@ -25,9 +25,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
@@ -59,6 +57,7 @@ public class GotServiceTest {
     private List<Family> familyList = new ArrayList<>();
     private final List<Dead> deadList = new ArrayList<>();
     private List<ContinentDto> continentDtos = new ArrayList<>();
+    private Set<String> familyName = new HashSet<>();
     Pageable page = PageRequest.of(0, 10);
     @InjectMocks
     private GotService gotService = new GotService();
@@ -220,19 +219,28 @@ public class GotServiceTest {
     }
 
     @Test
-    public void givenDeleteCharacterByName_whenDeleteExistingCharacter_shouldReturnCharacterDto() {
+    public void givenInsertFamily_whenSendSetFamilyNames_shouldInsertInFamilyRepository() {
+        when(familyRepository.save(any(Family.class))).thenReturn(family);
+        when(familyRepository.findAll(page)).thenReturn(familyPage);
+        familyName.add("House Stark");
+
+        gotService.insertFamily(familyName);
+
+        Page<FamilyDto> allDeadsPerFamily = gotService.findDeadsPerFamily(page);
+        List<FamilyDto> familyDtos = allDeadsPerFamily.stream().toList();
+
+        assertEquals(1, familyDtos.get(0).getId());
+        assertEquals("House Stark", familyDtos.get(0).getName());
+        assertEquals(0, familyDtos.get(0).getDeads());
+    }
+
+    @Test
+    public void givenDeleteCharacterByName_whenDeleteExistingCharacter_shouldReturnDeletedMessage() {
         when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
 
-        CharacterDto chDto = gotService.deleteCharacter("Francisco Junior");
+        String deleted = gotService.deleteCharacter("Francisco Junior");
 
-        assertEquals(character.getId(), chDto.getId());
-        assertEquals(character.getFirstName(), chDto.getFirstName());
-        assertEquals(character.getLastName(), chDto.getLastName());
-        assertEquals(character.getFullName(), chDto.getFullName());
-        assertEquals(character.getTitle(), chDto.getTitle());
-        assertEquals(character.getFamily(), chDto.getFamily());
-        assertEquals(character.getImage(), chDto.getImage());
-        assertEquals(character.getImageUrl(), chDto.getImageUrl());
+        assertEquals(String.format("%s was successfully deleted!", character.getFullName()), deleted);
     }
 
     @Test
@@ -325,6 +333,24 @@ public class GotServiceTest {
                 .isInstanceOf(CharacterAlreadyDeadException.class)
                 .hasMessageContaining("The character '%s' belonging to the family '%s' already died!",
                         deadDto.getName(), deadDto.getFamily());
+    }
+
+    @Test
+    public void givenDeadDto_whenIncludeNewDeadByCharacterInvalidFamily_shouldReturnCharacterNoBelongsToThatFamilyException(){
+        continentDtos.add(continentDto);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
+        when(gotAdapter.listContinents()).thenReturn(continentDtos);
+        when(familyRepository.findByName(any(String.class))).thenReturn(Optional.of(family));
+        when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(Optional.empty());
+
+        deadDto.setFamily("Baratheon");
+
+        Throwable throwable = catchThrowable(() -> gotService.includeNewDead(deadDto));
+
+        assertThat(throwable)
+                .isInstanceOf(CharacterNoBelongsToThatFamilyException.class)
+                .hasMessageContaining(String.format("The character '%s' no belongs to the '%s' family",
+                        deadDto.getName(), deadDto.getFamily()));
     }
 
     @Test
