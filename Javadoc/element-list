@@ -1,0 +1,14 @@
+br.com.inatel.FranciscoJunior_GotProject
+br.com.inatel.FranciscoJunior_GotProject.adapter
+br.com.inatel.FranciscoJunior_GotProject.config
+br.com.inatel.FranciscoJunior_GotProject.controller
+br.com.inatel.FranciscoJunior_GotProject.exception
+br.com.inatel.FranciscoJunior_GotProject.handler
+br.com.inatel.FranciscoJunior_GotProject.listener
+br.com.inatel.FranciscoJunior_GotProject.mapper
+br.com.inatel.FranciscoJunior_GotProject.model.dto
+br.com.inatel.FranciscoJunior_GotProject.model.entity
+br.com.inatel.FranciscoJunior_GotProject.model.rest
+br.com.inatel.FranciscoJunior_GotProject.repository
+br.com.inatel.FranciscoJunior_GotProject.service
+br.com.inatel.FranciscoJunior_GotProject.utils
