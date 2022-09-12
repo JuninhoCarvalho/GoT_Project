@@ -328,6 +328,24 @@ public class GotServiceTest {
     }
 
     @Test
+    public void givenDeadDto_whenIncludeNewDeadByCharacterInvalidFamily_shouldReturnCharacterNoBelongsToThatFamilyException(){
+        continentDtos.add(continentDto);
+        when(characterRepository.findByFullName(any(String.class))).thenReturn(Optional.of(character));
+        when(gotAdapter.listContinents()).thenReturn(continentDtos);
+        when(familyRepository.findByName(any(String.class))).thenReturn(Optional.of(family));
+        when(deadRepository.findByNameAndFamily(any(String.class), any(String.class))).thenReturn(Optional.empty());
+
+        deadDto.setFamily("Baratheon");
+
+        Throwable throwable = catchThrowable(() -> gotService.includeNewDead(deadDto));
+
+        assertThat(throwable)
+                .isInstanceOf(CharacterNoBelongsToThatFamilyException.class)
+                .hasMessageContaining(String.format("The character '%s' no belongs to the '%s' family",
+                        deadDto.getName(), deadDto.getFamily()));
+    }
+
+    @Test
     public void givenFindAllDeads_whenIncludeNewDeadIsValidInformations_shouldReturnDeadDtoList(){
         continentDtos.add(continentDto);
         deadList.add(dead);

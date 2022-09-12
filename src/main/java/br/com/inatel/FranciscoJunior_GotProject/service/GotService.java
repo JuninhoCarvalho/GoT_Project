@@ -18,7 +18,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClientException;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -114,6 +113,9 @@ public class GotService {
         else if(theCharacterAlreadyDead(deadDto.getName(), deadDto.getFamily())){
             throw new CharacterAlreadyDeadException(deadDto.getName(), deadDto.getFamily());
         }
+        else if(!characterBelongsToThatFamily(deadDto.getName(), deadDto.getFamily())){
+            throw new CharacterNoBelongsToThatFamilyException(deadDto.getName(), deadDto.getFamily());
+        }
 
         deadPerFamilyCalculation(deadDto);
         return GotMapper.toDeadDto(deadRepository.save(GotMapper.toDead(deadDto)));
@@ -148,5 +150,11 @@ public class GotService {
 
     private boolean theCharacterAlreadyDead(String name, String family) {
         return deadRepository.findByNameAndFamily(name, family).isPresent();
+    }
+
+    private boolean characterBelongsToThatFamily(String name, String family) {
+        Optional<Character> character = characterRepository.findByFullName(name);
+
+        return character.get().getFamily().equals(family);
     }
 }

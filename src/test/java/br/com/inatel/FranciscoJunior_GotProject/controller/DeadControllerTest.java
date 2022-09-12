@@ -346,4 +346,28 @@ public class DeadControllerTest {
         assertTrue(message.contains(String.format("The character '%s' belonging to the family '%s' already died!",
                 newDeadDto.getName(), newDeadDto.getFamily())));
     }
+
+    @Test
+    @Order(14)
+    public void givenAIncorrectPostRequest_whenCallPostMethodByCharacterInvalidFamily_shouldReturnCharacterNoBelongsToThatFamilyExceptionAnd400Code(){
+        final DeadDto newDeadDto = DeadDto.builder()
+                .id(1)
+                .name("Daenerys Targaryen")
+                .family("Baratheon")
+                .continent("Ulthos")
+                .build();
+
+
+        final String message = webTestClient.post()
+                .uri("/deads")
+                .body(BodyInserters.fromValue(newDeadDto))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody();
+
+        assertTrue(message.contains(String.format("The character '%s' no belongs to the '%s' family",
+                newDeadDto.getName(), newDeadDto.getFamily())));
+    }
 }
