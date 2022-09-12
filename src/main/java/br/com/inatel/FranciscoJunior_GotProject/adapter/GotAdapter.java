@@ -1,19 +1,22 @@
 package br.com.inatel.FranciscoJunior_GotProject.adapter;
 
-import br.com.inatel.FranciscoJunior_GotProject.exception.ExternalApiConnectionException;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.CharacterDto;
 import br.com.inatel.FranciscoJunior_GotProject.model.dto.ContinentDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+
+/**
+ * The adapter class is used to connect with the external api and fetch information from it.
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 
 @Service
 public class GotAdapter {

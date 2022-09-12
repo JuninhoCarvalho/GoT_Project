@@ -11,6 +11,12 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+/**
+ * Class to configure documentation via swagger
+ * @author francisco.carvalho
+ * @since 1.0
+ */
+
 @Configuration
 @EnableSwagger2
 public class SwaggerConfiguration {
@@ -24,6 +30,10 @@ public class SwaggerConfiguration {
     private static final String url = "https://github.com/JuninhoCarvalho/GoT_Project";
     private static final String email = "francisco.carvalho@inatel.br";
 
+    /**
+     * Method where the api information will be provided
+     * @return Docket
+     */
     @Bean
     public Docket SwaggerConfig() {
         Contact contact = new Contact(name, url, email);

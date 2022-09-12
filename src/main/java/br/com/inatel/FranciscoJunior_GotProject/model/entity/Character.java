@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+/**
+ * Character Entity
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

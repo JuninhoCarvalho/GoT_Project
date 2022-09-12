@@ -16,6 +16,11 @@ import org.springframework.web.reactive.function.client.WebClientException;
 
 import java.util.Objects;
 
+/**
+ * Handler class where exceptions will be configured for sampling in case the error happens
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @ControllerAdvice
 @ResponseBody
 public class ControllerExceptionHandler {
@@ -67,7 +72,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(CharacterNoBelongsToThatFamilyException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public Error CharacterNoBelongsToThatFamily(CharacterNoBelongsToThatFamilyException characterNoBelongsToThatFamily){
+    public Error characterNoBelongsToThatFamily(CharacterNoBelongsToThatFamilyException characterNoBelongsToThatFamily){
         return Error.builder()
                 .httpStatusCode(HttpStatus.BAD_REQUEST)
                 .message(characterNoBelongsToThatFamily.getMessage())

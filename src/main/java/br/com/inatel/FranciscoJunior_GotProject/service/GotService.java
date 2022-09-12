@@ -25,6 +25,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+
+/**
+ * Service class where the methods to be called in the Controllers class are located
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @Service
 @Transactional
 public class GotService {
@@ -41,17 +47,30 @@ public class GotService {
     @Autowired
     DeadRepository deadRepository;
 
+    /**
+     * Method called by the listener to populate the initial characters
+     * @return The initials characters provided by the external api
+     */
     public List<Character> populateCharactersDb(){
         List<Character> characters = GotMapper.toCharacterList(gotAdapter.listCharacters());
         characterRepository.saveAll(characters);
 
         return characters;
     }
+
+    /**
+     * @param page
+     * @return The characters contained in the database
+     */
     @Cacheable(value = "charactersList")
     public Page<CharacterDto> findAllCharacters(Pageable page){
         return GotMapper.toCharacterDtoPage(characterRepository.findAll(page));
     }
 
+    /**
+     * @param name
+     * @return The specific character searched by the name
+     */
     public CharacterDto findCharacter(String name) {
         Optional<Character> character = characterRepository.findByFullName(name);
 
@@ -62,6 +81,10 @@ public class GotService {
         throw new CharacterNotFoundException(name);
     }
 
+    /**
+     * @param characterDto
+     * @return The new Character created
+     */
     @CacheEvict(value = "charactersList", allEntries = true)
     public CharacterDto createCharacter(CharacterDto characterDto) {
 
@@ -77,6 +100,10 @@ public class GotService {
         return GotMapper.toCharacterDto(characterRepository.save(GotMapper.toCharacter(characterDto)));
     }
 
+    /**
+     * @param fullName
+     * @return Message if the character has been deleted
+     */
     @CacheEvict(value = "charactersList", allEntries = true)
     public String deleteCharacter(String fullName) {
         Optional<Character> character = characterRepository.findByFullName(fullName);
@@ -89,15 +116,26 @@ public class GotService {
         throw new CharacterNotFoundException(fullName);
     }
 
+    /**
+     * @param familyNames
+     * Method called by the listener to populate the families
+     */
     public void insertFamily(Set<String> familyNames) {
         familyNames.forEach(f -> familyRepository.save(new Family(f,0)));
     }
 
+    /**
+     * @return All deads contained in the database
+     */
     @Cacheable(value = "deadsList")
     public List<DeadDto> findAllDeads() {
         return GotMapper.toDeadDtoList(deadRepository.findAll());
     }
 
+    /**
+     * @param deadDto
+     * @return The new dead included in the database if the information is valid
+     */
     @CacheEvict(value = "deadsList", allEntries = true)
     public DeadDto includeNewDead(DeadDto deadDto) {
 
@@ -121,16 +159,28 @@ public class GotService {
         return GotMapper.toDeadDto(deadRepository.save(GotMapper.toDead(deadDto)));
     }
 
+    /**
+     * @param page
+     * @return Page with the families and their deads quantity
+     */
     public Page<FamilyDto> findDeadsPerFamily(Pageable page) {
         return GotMapper.toFamilyDtoPage(familyRepository.findAll(page));
     }
 
+    /**
+     * @param dead
+     * If a new death is registered, this method adds to the family's death count
+     */
     public void deadPerFamilyCalculation(DeadDto dead) {
         Family family = familyRepository.findByName(dead.getFamily()).get();
         family.setDeads(family.getDeads() + 1);
         familyRepository.save(family);
     }
 
+    /**
+     * @param continent
+     * @return The answer for the continent to be valid or not
+     */
     public Boolean isValidContinent(String continent){
         List<String> cNames = new ArrayList<>();
 
@@ -139,19 +189,36 @@ public class GotService {
         return cNames.stream().anyMatch(c -> c.equals(continent));
     }
 
+    /**
+     * @return Continents provided by the external api
+     */
     @Cacheable(value = "continentsApi")
     public List<ContinentDto> loadContinents(){
         return gotAdapter.listContinents();
     }
 
+    /**
+     * @param name
+     * @return The answer for the family to be valid or not
+     */
     private Boolean isValidFamily(String name){
         return familyRepository.findByName(name).isPresent();
     }
 
+    /**
+     * @param name
+     * @param family
+     * @return The answer for the character already registered as dead or not
+     */
     private boolean theCharacterAlreadyDead(String name, String family) {
         return deadRepository.findByNameAndFamily(name, family).isPresent();
     }
 
+    /**
+     * @param name
+     * @param family
+     * @return The answer if the character is not from that family
+     */
     private boolean characterBelongsToThatFamily(String name, String family) {
         Optional<Character> character = characterRepository.findByFullName(name);
 

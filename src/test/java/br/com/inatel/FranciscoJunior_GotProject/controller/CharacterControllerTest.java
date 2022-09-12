@@ -19,7 +19,11 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
+/**
+ * Test class for CharacterController
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ActiveProfiles("test")
@@ -28,6 +32,10 @@ public class CharacterControllerTest {
     @Autowired
     private WebTestClient webTestClient;
 
+    /**
+     * @throws JSONException
+     * Should return CharacterDto Page and 200 status code
+     */
     @Test
     @Order(1)
     public void givenGetCharactersRequest_whenGetCharactersSettingWithDefaultPageable_shouldReturnCharacterDtoPageAnd200Code() throws JSONException {
@@ -60,6 +68,10 @@ public class CharacterControllerTest {
         assertEquals("https://thronesapi.com/assets/images/daenerys.jpg", jsonObject1.get("imageUrl"));
     }
 
+    /**
+     * @throws JSONException
+     * Should return CharacterDto Page with page settings and 200 status code
+     */
     @Test
     @Order(2)
     public void givenGetCharactersRequest_whenGetCharactersSettingPageable_shouldReturnCharacterDtoPageAnd200Code() throws JSONException {
@@ -97,6 +109,10 @@ public class CharacterControllerTest {
         assertEquals("https://thronesapi.com/assets/images/jaqen-hghar.jpg", jsonObject1.get("imageUrl"));
     }
 
+    /**
+     * @throws JSONException
+     * Should return CharacterDto Page and 200 status code
+     */
     @Test
     @Order(3)
     public void givenGetCharactersRequest_whenGetCharactersSettingJustPage_shouldReturnCharacterDtoPageAnd200Code() throws JSONException {
@@ -121,6 +137,10 @@ public class CharacterControllerTest {
         assertTrue(sortObject.get("sorted").equals(false));
     }
 
+    /**
+     * @throws JSONException
+     * Should return CharacterDto Page and 200 status code
+     */
     @Test
     @Order(4)
     public void givenGetCharactersRequest_whenGetCharactersSettingJustPageableSize_shouldReturnCharacterDtoPageAnd200Code() throws JSONException {
@@ -145,6 +165,10 @@ public class CharacterControllerTest {
         assertTrue(sortObject.get("sorted").equals(false));
     }
 
+    /**
+     * @throws JSONException
+     * Should return CharacterDto Page and 200 status code
+     */
     @Test
     @Order(5)
     public void givenGetCharactersRequest_whenGetCharactersSettingJustPageableSort_shouldReturnCharacterDtoPageAnd200Code() throws JSONException {
@@ -169,6 +193,9 @@ public class CharacterControllerTest {
         assertTrue(sortObject.get("sorted").equals(true));
     }
 
+    /**
+     * Should throw the invalid pageable setting and 404 status code
+     */
     @Test
     @Order(6)
     public void givenGetCharactersRequest_whenGetCharactersSettingInvalidPageableSortReference_shouldReturnCharacterDtoPageAnd404Code() {
@@ -186,6 +213,9 @@ public class CharacterControllerTest {
         assertTrue(message.contains("No property 'invalid' found for type 'Character'"));
     }
 
+    /**
+     * Should return CharacterDto Page and 200 status code
+     */
     @Test
     @Order(7)
     public void givenGetCharacterRequest_whenCallGetMethodByValidName_shouldReturnCharacterDtoAnd200Code(){
@@ -206,6 +236,10 @@ public class CharacterControllerTest {
         assertEquals("https://thronesapi.com/assets/images/jon-snow.jpg", characterDto.getImageUrl());
     }
 
+
+    /**
+     * Should throw the CharacterNotFoundException and 404 status code
+     */
     @Test
     @Order(8)
     public void givenGetCharacterRequest_whenCallGetMethodByInvalidName_shouldReturnCharacterNotFoundExceptionAnd404Code(){
@@ -220,6 +254,9 @@ public class CharacterControllerTest {
         assertTrue(message.contains("Invalid Not Found!"));
     }
 
+    /**
+     * Should return new Character and 201 status code
+     */
     @Test
     @Order(9)
     public void givenACorrectPostRequest_whenCallPostMethod_shouldReturnNewCharacterDtoAnd201Code(){
@@ -253,6 +290,9 @@ public class CharacterControllerTest {
         assertEquals(newCharacterDto.getImageUrl(), characterDto.getImageUrl());
     }
 
+    /**
+     * Should throw CharacterAlreadyExistsException And 409 status code
+     */
     @Test
     @Order(10)
     public void givenAIncorrectPostRequest_whenCallPostMethodByCharacterAlreadyCreated_shouldReturnCharacterAlreadyExistsExceptionAnd409Code(){
@@ -279,6 +319,9 @@ public class CharacterControllerTest {
         assertTrue(message.contains(String.format("The character '%s' already exists!", newCharacterDto.getFullName())));
     }
 
+    /**
+     * Should throw FamilyDoesntExistException And 409 status code
+     */
     @Test
     @Order(11)
     public void givenAIncorrectPostRequest_whenCallPostMethodByInvalidFamily_shouldReturnFamilyDoesntExistExceptionAnd404Code(){
@@ -306,6 +349,9 @@ public class CharacterControllerTest {
                 newCharacterDto.getFamily())));
     }
 
+    /**
+     * Should throw MethodArgumentNotValidException And 400 status code
+     */
     @Test
     @Order(12)
     public void givenAIncorrectPostRequest_whenCallPostMethodByANullField_shouldReturnMethodArgumentNotValidExceptionAnd400Code(){
@@ -331,6 +377,9 @@ public class CharacterControllerTest {
         assertTrue(message.contains("firstName field is missing!"));
     }
 
+    /**
+     * Should return the message with the name of the deleted character
+     */
     @Test
     @Order(13)
     public void givenDeleteRequest_whenCallDeleteMethodByValidName_shouldReturnDeletedMessageAnd200Code(){
@@ -345,6 +394,10 @@ public class CharacterControllerTest {
         assertEquals("Sansa Stark was successfully deleted!", message);
     }
 
+
+    /**
+     * Should throw CharacterNotFoundException and 404 status code
+     */
     @Test
     @Order(14)
     public void givenDeleteRequest_whenCallDeleteMethodByInvalidName_shouldReturnCharacterNotFoundExceptionAnd404Code(){
@@ -358,5 +411,4 @@ public class CharacterControllerTest {
 
         assertTrue(message.contains(String.format("Invalid Not Found!")));
     }
-
 }

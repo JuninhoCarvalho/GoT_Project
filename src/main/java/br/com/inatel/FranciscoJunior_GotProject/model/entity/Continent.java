@@ -8,6 +8,11 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+/**
+ * Continent Entity
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

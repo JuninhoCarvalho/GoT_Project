@@ -5,6 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
+/**
+ * Class with attributes that will appear when an exception is thrown
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @Data
 @AllArgsConstructor
 @Builder

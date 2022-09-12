@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+/**
+ * Controller class where the endpoints to manipulate the deads will be made
+ * @author francisco.carvalho
+ * @since 1.0
+ */
 @RestController
 @RequestMapping("/deads")
 public class DeadController {
@@ -27,6 +32,9 @@ public class DeadController {
         this.gotService = gotService;
     }
 
+    /**
+     * @return All deads inserted into the database
+     */
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = DeadDto.class),
             @ApiResponse(code = 500, message = "Internal Server Error: Exception Specialized Message."),
             @ApiResponse(code = 503, message = "Service Unavailable: JDBC Connection fail.")})
@@ -36,6 +44,10 @@ public class DeadController {
         return gotService.findAllDeads();
     }
 
+    /**
+     * @param page
+     * @return List of families and their numbers of dead
+     */
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = FamilyDto.class),
             @ApiResponse(code = 500, message = "Internal Server Error: Exception Specialized Message."),
             @ApiResponse(code = 503, message = "Service Unavailable: JDBC Connection fail.")})
@@ -46,6 +58,10 @@ public class DeadController {
         return gotService.findDeadsPerFamily(page);
     }
 
+    /**
+     * @param deadDto
+     * @return The dead character if the information is valid
+     */
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = DeadDto.class),
             @ApiResponse(code = 400, message = "Bad Request: Character No Belongs to that family."),
             @ApiResponse(code = 404, message = "Not Found: Character, continent or family Not Found."),
